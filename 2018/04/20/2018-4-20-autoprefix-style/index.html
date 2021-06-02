@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>JS 中的 autoprefixer - 蔡锦的博客 | CAIJIN BLOG</title>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-131749872-3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-131749872-3');
+</script>
+
+<link rel="stylesheet" href="/blog/css/osimple.css">
+
+
+<link rel="stylesheet" href="/blog/css/theme/theme0.css">
+
+<link rel="shortcut icon" href="/blog/favicon.ico"> 
+  
+<link rel="stylesheet" href="/blog/css/arduino-light.css">
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+  <div class="header-menu post-header-menu">
+    <a class="left" href="/blog/">CAIJIN BLOG</a>
+    <div class="right">
+      
+        <a href="/blog/">HOME</a>
+      
+        <a href="/blog/archives/">ARCHIVE</a>
+      
+        <a href="/blog/about/">ABOUT</a>
+      
+    </div>
+  </div>
+  <main class="page-container">
+    <div class="top-inner">
+      <h1 class="page-title">
+        JS 中的 autoprefixer
+      </h1>
+      
+        <time datetime="2018-04-20T00:00:00.000Z">
+            Posted by Orbem on April 20th 2018
+        </time>
+      
+      
+        <ul class="tag-list">
+          
+            <li class="tag-list-item">
+              <a href="/blog/tags/JavaScript/">JavaScript</a>
+            </li>
+          
+        </ul>
+      
+    </div>
+    <article class="post">
+        <p>在编写 CSS 的时候，常常需要考虑游览器的兼容，需要给样式加上前缀。在 webpack 中直接写 CSS 的时候有 autoprefixer 插件帮我们自动添加，很方便。但是在 JS 中添加 CSS 的时候，插件就不起作用了，这个时候，就需要自己来添加了。所以可以实现一个函数，来为我们自动添加相应的游览器兼容前缀。<span id="more"></span></p>
+<p>直接上代码：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// elementStyle 是一个对象，包含了游览器支持的 style</span></span><br><span class="line"><span class="keyword">let</span> elementStyle = <span class="built_in">document</span>.createElement(<span class="string">&#x27;div&#x27;</span>).style</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> vendor = (<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// 定义游览器前缀</span></span><br><span class="line">  <span class="keyword">let</span> transformNames = &#123;</span><br><span class="line">    <span class="attr">webkit</span>: <span class="string">&#x27;webkitTransform&#x27;</span>,</span><br><span class="line">    <span class="attr">Moz</span>: <span class="string">&#x27;MozTransform&#x27;</span>,</span><br><span class="line">    <span class="attr">O</span>: <span class="string">&#x27;OTransform&#x27;</span>,</span><br><span class="line">    <span class="attr">ms</span>: <span class="string">&#x27;msTransform&#x27;</span>,</span><br><span class="line">    <span class="attr">standard</span>: <span class="string">&#x27;transform&#x27;</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 遍历前缀，如果游览器支持的话，就返回对应 key</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">in</span> transformNames) &#123;</span><br><span class="line">    <span class="keyword">if</span> (elementStyle[transformNames[key]] !== <span class="literal">undefined</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> key</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 如果都不支持，那肯定是有问题的，返回 false</span></span><br><span class="line">  <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">&#125;)()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 把函数导出，然后直接使用 import 引用就行了</span></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">prefixStyle</span> (<span class="params">style</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (vendor === <span class="literal">false</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 如果 vendor 为标准，就不改变 style</span></span><br><span class="line">  <span class="keyword">if</span> (vendor === <span class="string">&#x27;standard&#x27;</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> style</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 否则返回 vender(也就是 webkit Moz O ms 中的一个) + 样式首字母大写</span></span><br><span class="line">  <span class="comment">// 例如：webkit + transform ---&gt; webkitTransform</span></span><br><span class="line">  <span class="keyword">return</span> vendor + style.charAt(<span class="number">0</span>).toUpperCase() + style.substr(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>首先，使用 createElement() 方法得到 Element 对象，然后得到游览器支持的 style 样式。</p>
+<p>然后使用一个立即执行函数，来获取到样式前缀。</p>
+<p>然后导出一个 prefixStyle 函数，需要使用的时候直接 import 导入就可以了。</p>
+<p>使用的例子：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 首先引入 prefixStyle 函数</span></span><br><span class="line"><span class="keyword">import</span> &#123;prefixStyle&#125; <span class="keyword">from</span> <span class="string">&#x27;common/js/dom&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 然后定义我们的样式</span></span><br><span class="line"><span class="comment">// 得到的 transfrom 就是加上前缀之后的样式</span></span><br><span class="line"><span class="keyword">const</span> transform = prefixStyle(<span class="string">&#x27;transform&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用</span></span><br><span class="line"><span class="keyword">let</span> m = <span class="built_in">document</span>.querySelector(<span class="string">&#x27;.box&#x27;</span>)</span><br><span class="line">m.style[transform] = <span class="string">&#x27;scale(2)&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果我们的游览器是 webkit 内核，那么上面的代码就等于</span></span><br><span class="line">m.style[<span class="string">&#x27;webkitTransform&#x27;</span>] = <span class="string">&#x27;scale(2)&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>例如，游览器用的是 webkit 内核，那么 prefixStyle(‘transform’) 就可以得到 webkitTransform。</p>
+<p>这样就很方便的给样式加上了前缀，因为使用了模块化的思想，所以可以很方便的重复使用。</p>
+
+    </article>
+    <div class="pager-post">
+    
+      <a class="prev-link" href="/blog/2018/05/15/2018-5-15-vue-music/">
+        <span>PREVIOUS</span>
+        <p>Vue 实现网易云音乐 WebApp</p>
+      </a>
+    
+    
+    
+      <a class="next-link" href="/blog/2018/04/15/2018-04-15-regexp-record/">
+        <span>NEXT</span>
+        <p>JS 正则表达式</p>
+      </a>
+    
+  </div>
+    
+  <div class="post-comment-wrapper">
+      <div id="disqus_thread"></div>
+  </div>
+
+    <div class="post-all-tags">
+      <h1 class="title">ALL TAGS</h1>
+      <ul class="all-tag-list">
+    
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E6%B8%B8%E6%88%8F/">
+          游戏
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/CSS/">
+          CSS
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/JavaScript/">
+          JavaScript
+          <span class="count">
+            8
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+          数据结构
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E7%94%9F%E6%B4%BB/">
+          生活
+          <span class="count">
+            4
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/Git/">
+          Git
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E5%90%8E%E7%AB%AF/">
+          后端
+          <span class="count">
+            2
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/Vue/">
+          Vue
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E7%A7%BB%E5%8A%A8%E7%AB%AF/">
+          移动端
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+    
+  </ul>
+    </div>
+  </main>
+  <footer>
+  <div class="connect-inner">
+      
+        <a href="https://github.com/caijinyc" target="_blank" class="github">
+          <i class="iconfont icon-github"></i>
+        </a>
+      
+        <a href="https://juejin.im/user/5acc88a8f265da23a2297002" target="_blank" class="juejin">
+          <i class="iconfont icon-juejin"></i>
+        </a>
+      
+        <a href="https://www.zhihu.com/people/adherds/activities" target="_blank" class="zhihu">
+          <i class="iconfont icon-zhihu"></i>
+        </a>
+      
+  </div>
+  <div class="bottom-inner">
+    <p class="theme">Theme <a target="_blank" rel="noopener" href="https://github.com/orbem/hexo-theme-osimple">OSimple</a> by Caijinyc</p>
+    <p class="copyright">Copyright © 2019 Cai Jin & Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a></p> 
+  </div>
+</footer>
+  
+  <script>
+      var disqus_shortname = 'orbem';
+      var disqus_config = function () {
+          this.page.url = 'https://caijin.tech/blog2018/04/20/2018-4-20-autoprefix-style/';
+          this.page.identifier = '2018/04/20/2018-4-20-autoprefix-style/';
+      };
+      (function () {
+          var d = document, s = d.createElement('script');
+          s.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.body || d.head).appendChild(s);
+      })();
+  </script>
+
+  
+<script src="/blog/js/highlight.js"></script>
+
+</body>
+</html>
+
+

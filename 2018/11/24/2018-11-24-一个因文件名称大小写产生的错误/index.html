@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>一个因文件名称大小写产生的错误 - 蔡锦的博客 | CAIJIN BLOG</title>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-131749872-3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-131749872-3');
+</script>
+
+<link rel="stylesheet" href="/blog/css/osimple.css">
+
+
+<link rel="stylesheet" href="/blog/css/theme/theme0.css">
+
+<link rel="shortcut icon" href="/blog/favicon.ico"> 
+  
+<link rel="stylesheet" href="/blog/css/arduino-light.css">
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+  <div class="header-menu post-header-menu">
+    <a class="left" href="/blog/">CAIJIN BLOG</a>
+    <div class="right">
+      
+        <a href="/blog/">HOME</a>
+      
+        <a href="/blog/archives/">ARCHIVE</a>
+      
+        <a href="/blog/about/">ABOUT</a>
+      
+    </div>
+  </div>
+  <main class="page-container">
+    <div class="top-inner">
+      <h1 class="page-title">
+        一个因文件名称大小写产生的错误
+      </h1>
+      
+        <time datetime="2018-11-24T21:50:49.000Z">
+            Posted by Orbem on November 24th 2018
+        </time>
+      
+      
+        <ul class="tag-list">
+          
+            <li class="tag-list-item">
+              <a href="/blog/tags/Git/">Git</a>
+            </li>
+          
+        </ul>
+      
+    </div>
+    <article class="post">
+        <p>之前实习的时候在写完代码上线部署的时候发现服务器 Build 的时候找不到依赖文件，但是在本地 Build 却正常，检查了半天本地明明没有问题，但是服务器上就是报路径错误，让我很是头疼。 <span id="more"></span></p>
+<p>最后在大佬帮助 Debug 后发现服务器上面有<strong>两个同名文件夹（大小写不同）</strong>。例如：<code>ABC</code> 和 <code>abc</code> 两个文件夹，因为服务器是 Linux 系统，<strong>而 Linux 系统是区分大小写的</strong>，所以两个文件可以同时存在，但是在拉到本地之后，就<strong>合并成了一个</strong>文件夹 <code>ABC</code> （因为 Windows 和 macOS（默认） 以及 Git（默认） 是不区分大小写的），这个时候 <code>abc</code> 文件夹在本地是看不见的，合并到了 <code>ABC</code> 文件夹中。</p>
+<p>因为本地 <code>abc</code> 文件夹中的所有文件都在 <code>ABC</code> 文件夹中，所以代码中所有的依赖路径都是 <code>../ABC/..</code> ，这个时候在本地跑是没有问题的。</p>
+<p><strong>但是在服务器上面，其实依赖的文件有一部分是存在 <code>abc</code> 中的。因为路径都是指向 <code>ABC</code> ，而 <code>ABC</code> 文件中并没有这些文件（文件在 <code>abc</code> 中），这个时候就会报路径错误。</strong></p>
+<h2 id="这样的错误是如何产生的？"><a href="#这样的错误是如何产生的？" class="headerlink" title="这样的错误是如何产生的？"></a>这样的错误是如何产生的？</h2><p>发生这样的问题我也是很好奇，于是我翻到了这个文件夹当时的 commit 记录，发现当时是两个人一起来开发一个任务，于是大家一起商量好的文件夹的名称，却因为没有规范名称的大小写所以出现了问题。</p>
+<p>例如 A 创建了 <code>ABC</code> 然后代码里的依赖路径为 <code>../ABC/..</code>，B 创建了 <code>abc</code>，依赖路径为 <code>../abc/..</code>。因为上传到服务端之后文件夹都是会存在的，并不会合并，所以对于当时的情况来说，并不会发生路径错误。so，这个坑就这样产生了。</p>
+<h2 id="这个错误引发的问题"><a href="#这个错误引发的问题" class="headerlink" title="这个错误引发的问题"></a>这个错误引发的问题</h2><p><strong>这个坑对于以后的开发人员来说就说一个很大的坑了，不，应该说是巨坑、天坑！</strong></p>
+<p><em>这一段可能会很绕，仔细看：</em>因为代码再 pull 到本地之后，两个文件夹就会合并成一个，比如这个时候合并成了 <code>ABC</code> ，那么这个时候依赖 <code>../abc/..</code> 的功能就爆炸了，这个时候 Debug 就发现，咦，这里怎么会有依赖 <code>../abc/..</code> 的路径，怪不得会有问题，赶紧改成 <code>../ABC/..</code>，嗯，这个时候代码 OK 了，可以跑起来了。<strong>但是！</strong>当代码再次 push 到了服务器上的时候，问题又来了，因为依赖 <code>abc</code> 文件夹的代码被改成了 <code>../ABC/..</code> 啊，但是文件其实还是在 <code>abc</code> 中的啊，所以服务器上的代码又爆炸了。</p>
+<p>这个时候接手代码人的内心：wtf？？？让我死不好吗。</p>
+<h2 id="解决的方法"><a href="#解决的方法" class="headerlink" title="解决的方法"></a>解决的方法</h2><p>把服务器上的两个文件夹先删掉一个，然后重新上传一下代码，确保只有一个文件夹。</p>
+<h2 id="如何避免这样的问题："><a href="#如何避免这样的问题：" class="headerlink" title="如何避免这样的问题："></a><strong>如何避免这样的问题：</strong></h2><ol>
+<li><strong>确定好文件名的规范，比如使用驼峰，或者全部小写等等</strong></li>
+<li>两个分支同时创建文件夹的时候名字大小写不要搞错了，不然合并的时候就是两个文件夹</li>
+</ol>
+<h2 id="拓展"><a href="#拓展" class="headerlink" title="拓展"></a>拓展</h2><p><strong>Git 为什么是默认不区分大小写？</strong></p>
+<p>其实根据上面的一些分析，我觉得有一定原因是为了兼容 Widnows 和 macOS 的，因为这两个系统默认是不区分大小写的。</p>
+<p>即使 Git 支持了区分大小写，可以有两个大小写不同但是名称相同的文件夹，但是 Windows 和 macOS 不能显示，那岂不是很尴尬。</p>
+
+    </article>
+    <div class="pager-post">
+    
+      <a class="prev-link" href="/blog/2018/12/15/2018-12-15-%E9%9D%99%E6%80%81%E7%BD%91%E9%A1%B5%E9%83%A8%E7%BD%B2%E8%87%B3%E6%9C%8D%E5%8A%A1%E5%99%A8/">
+        <span>PREVIOUS</span>
+        <p>如何将打包好的静态网页部署至服务器</p>
+      </a>
+    
+    
+    
+      <a class="next-link" href="/blog/2018/08/12/2018-08-12-%E4%B8%83%E6%9C%88%E5%AE%9E%E4%B9%A0%E5%B0%8F%E8%AE%B0/">
+        <span>NEXT</span>
+        <p>七月实习小记</p>
+      </a>
+    
+  </div>
+    
+  <div class="post-comment-wrapper">
+      <div id="disqus_thread"></div>
+  </div>
+
+    <div class="post-all-tags">
+      <h1 class="title">ALL TAGS</h1>
+      <ul class="all-tag-list">
+    
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E6%B8%B8%E6%88%8F/">
+          游戏
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/CSS/">
+          CSS
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/JavaScript/">
+          JavaScript
+          <span class="count">
+            8
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+          数据结构
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E7%94%9F%E6%B4%BB/">
+          生活
+          <span class="count">
+            4
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/Git/">
+          Git
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E5%90%8E%E7%AB%AF/">
+          后端
+          <span class="count">
+            2
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/Vue/">
+          Vue
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E7%A7%BB%E5%8A%A8%E7%AB%AF/">
+          移动端
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+    
+  </ul>
+    </div>
+  </main>
+  <footer>
+  <div class="connect-inner">
+      
+        <a href="https://github.com/caijinyc" target="_blank" class="github">
+          <i class="iconfont icon-github"></i>
+        </a>
+      
+        <a href="https://juejin.im/user/5acc88a8f265da23a2297002" target="_blank" class="juejin">
+          <i class="iconfont icon-juejin"></i>
+        </a>
+      
+        <a href="https://www.zhihu.com/people/adherds/activities" target="_blank" class="zhihu">
+          <i class="iconfont icon-zhihu"></i>
+        </a>
+      
+  </div>
+  <div class="bottom-inner">
+    <p class="theme">Theme <a target="_blank" rel="noopener" href="https://github.com/orbem/hexo-theme-osimple">OSimple</a> by Caijinyc</p>
+    <p class="copyright">Copyright © 2019 Cai Jin & Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a></p> 
+  </div>
+</footer>
+  
+  <script>
+      var disqus_shortname = 'orbem';
+      var disqus_config = function () {
+          this.page.url = 'https://caijin.tech/blog2018/11/24/2018-11-24-一个因文件名称大小写产生的错误/';
+          this.page.identifier = '2018/11/24/2018-11-24-一个因文件名称大小写产生的错误/';
+      };
+      (function () {
+          var d = document, s = d.createElement('script');
+          s.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.body || d.head).appendChild(s);
+      })();
+  </script>
+
+  
+<script src="/blog/js/highlight.js"></script>
+
+</body>
+</html>
+
+

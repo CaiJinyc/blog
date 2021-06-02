@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>原生 JavaScript 实现扫雷游戏 - 蔡锦的博客 | CAIJIN BLOG</title>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-131749872-3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-131749872-3');
+</script>
+
+<link rel="stylesheet" href="/blog/css/osimple.css">
+
+
+<link rel="stylesheet" href="/blog/css/theme/theme0.css">
+
+<link rel="shortcut icon" href="/blog/favicon.ico"> 
+  
+<link rel="stylesheet" href="/blog/css/arduino-light.css">
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+  <div class="header-menu post-header-menu">
+    <a class="left" href="/blog/">CAIJIN BLOG</a>
+    <div class="right">
+      
+        <a href="/blog/">HOME</a>
+      
+        <a href="/blog/archives/">ARCHIVE</a>
+      
+        <a href="/blog/about/">ABOUT</a>
+      
+    </div>
+  </div>
+  <main class="page-container">
+    <div class="top-inner">
+      <h1 class="page-title">
+        原生 JavaScript 实现扫雷游戏
+      </h1>
+      
+        <time datetime="2018-03-22T17:15:35.000Z">
+            Posted by Orbem on March 22nd 2018
+        </time>
+      
+      
+        <ul class="tag-list">
+          
+            <li class="tag-list-item">
+              <a href="/blog/tags/游戏/">游戏</a>
+            </li>
+          
+        </ul>
+      
+    </div>
+    <article class="post">
+        <p>学习了这么长时间的 JS，不能光看不练，于是就写了个小游戏练习一下。因为自己还是个菜鸟，所以有错误的话还请各位大佬多多指点，谢啦~ <span id="more"></span></p>
+<p>如果感兴趣的话可以试试：<a href="https://caijin.tech/demo/mineSweeping/index.html">Demo</a><br>项目地址：<a target="_blank" rel="noopener" href="https://github.com/caijinyc/game-mineSweepinng">game-mineSweepinng</a></p>
+<h2 id="效果图"><a href="#效果图" class="headerlink" title="效果图"></a>效果图</h2><h4 id="扫雷过程"><a href="#扫雷过程" class="headerlink" title="扫雷过程"></a>扫雷过程</h4><p>扫呀扫呀扫个雷。</p>
+<img src="https://s2.ax1x.com/2019/01/01/F5M1UJ.png" alt="F5M1UJ.png" border="0">
+
+<h4 id="扫雷失败"><a href="#扫雷失败" class="headerlink" title="扫雷失败"></a>扫雷失败</h4><p>扫雷失败就会提示扫雷失败，然后逐步显示出所有地雷（我会说我没找到地雷的图才用的炸弹吗）。</p>
+<img src="https://s2.ax1x.com/2019/01/01/F5M359.jpg" alt="F5M359.jpg" border="0">
+
+
+<h4 id="扫雷成功"><a href="#扫雷成功" class="headerlink" title="扫雷成功"></a>扫雷成功</h4><p>其实这里是有个动画的，彩色方块是逐步覆盖全部格子的。</p>
+<img src="https://s2.ax1x.com/2019/01/01/F5MMbF.gif" alt="F5MMbF.gif" border="0" />
+
+<h2 id="功能"><a href="#功能" class="headerlink" title="功能"></a>功能</h2><h4 id="实现的功能"><a href="#实现的功能" class="headerlink" title="实现的功能"></a>实现的功能</h4><p>基本扫雷的功能都实现了，例如：</p>
+<ul>
+<li>计时</li>
+<li>选择游戏难度</li>
+<li>标记地雷（插旗子标记地雷，标记之后不能点击）</li>
+<li>剩余雷数（总的雷数减去插旗的数量）</li>
+<li>自动连锁点开（当点开某个区块后，如果该区块的数字为 0，也就是九宫格内没有雷，那么将自动点开九宫格内的所有区块）</li>
+</ul>
+<p>还做了点小彩蛋，例如：踩到地雷时，地雷会逐步显示，还有成功扫到所有雷之后，地图逐渐被彩色方块覆盖，然后提示扫雷成功。</p>
+<h4 id="没有实现的功能"><a href="#没有实现的功能" class="headerlink" title="没有实现的功能"></a>没有实现的功能</h4><p>自定义，问号标记（偷懒了偷懒了，说不定以后会补上呢 <em>（鬼才会信吧）</em>）。</p>
+<h2 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h2><p>都说写东西学的最快，这句话是很有道理的。写个小游戏，我又 Get 到了很多知识。</p>
+<h4 id="生成一张扫雷地图"><a href="#生成一张扫雷地图" class="headerlink" title="生成一张扫雷地图"></a>生成一张扫雷地图</h4><p>这里当然用的是数组啦，会玩扫雷的应该都懂，如果一个方块块有雷，那么边上的值都加 1（就是根据这个扫的嘛~没有这个还怎么玩）。我相信很多人是不会像看代码的，所以我直接讲我的思路。</p>
+<ol>
+<li>根据行数和列数创建一个多维数组（使用 for 循环嵌套实现）</li>
+<li>然后使用 Math 随机 map[x][x] 来写入雷的位置（再次使用 for 循环，写入 9（9 就代表雷）），如果位置已经有雷了就重写随机然后写入</li>
+<li>然后我们就会得到一个这样的数组，这个时候我们只需要让 9 的四周加上 1<br>[ [0, 9, 0, 0],<br>  [0, 0, 9, 0],<br>  [9, 0, 9, 0],<br>  [0, 9, 0, 0] ]</li>
+<li>得到这样的数组，这样就大功告成啦。<br>[  [1, 9, 2, 1],<br>  [2, 4, 9, 2],<br>  [9, 4, 9, 2],<br>  [2, 9, 2, 1]  ]</li>
+</ol>
+<h4 id="将地图写入页面"><a href="#将地图写入页面" class="headerlink" title="将地图写入页面"></a>将地图写入页面</h4><p>使用 doucument.querySelector 获取到元素节点，然后使用 innerHTML 就行了。（感觉自己说这两句像是在放屁）。想了解的直接去 Github 看源码把，一看就懂。</p>
+<h4 id="自动连锁点开"><a href="#自动连锁点开" class="headerlink" title="自动连锁点开"></a>自动连锁点开</h4><p>这个比较难，想了挺久的。思路大概是这样：</p>
+<ol>
+<li>点击到为 0 的位置，就自动显示周围一圈的位置。</li>
+<li>然后周围一圈的还有为 0 的位置，就继续显示周围一圈，然后循环到没有为止。</li>
+</ol>
+
+    </article>
+    <div class="pager-post">
+    
+      <a class="prev-link" href="/blog/2018/03/25/2018-03-25-css-center/">
+        <span>PREVIOUS</span>
+        <p>实现居中的几种方法</p>
+      </a>
+    
+    
+    
+  </div>
+    
+  <div class="post-comment-wrapper">
+      <div id="disqus_thread"></div>
+  </div>
+
+    <div class="post-all-tags">
+      <h1 class="title">ALL TAGS</h1>
+      <ul class="all-tag-list">
+    
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E6%B8%B8%E6%88%8F/">
+          游戏
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/CSS/">
+          CSS
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/JavaScript/">
+          JavaScript
+          <span class="count">
+            8
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+          数据结构
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E7%94%9F%E6%B4%BB/">
+          生活
+          <span class="count">
+            4
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/Git/">
+          Git
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E5%90%8E%E7%AB%AF/">
+          后端
+          <span class="count">
+            2
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/Vue/">
+          Vue
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E7%A7%BB%E5%8A%A8%E7%AB%AF/">
+          移动端
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+    
+  </ul>
+    </div>
+  </main>
+  <footer>
+  <div class="connect-inner">
+      
+        <a href="https://github.com/caijinyc" target="_blank" class="github">
+          <i class="iconfont icon-github"></i>
+        </a>
+      
+        <a href="https://juejin.im/user/5acc88a8f265da23a2297002" target="_blank" class="juejin">
+          <i class="iconfont icon-juejin"></i>
+        </a>
+      
+        <a href="https://www.zhihu.com/people/adherds/activities" target="_blank" class="zhihu">
+          <i class="iconfont icon-zhihu"></i>
+        </a>
+      
+  </div>
+  <div class="bottom-inner">
+    <p class="theme">Theme <a target="_blank" rel="noopener" href="https://github.com/orbem/hexo-theme-osimple">OSimple</a> by Caijinyc</p>
+    <p class="copyright">Copyright © 2019 Cai Jin & Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a></p> 
+  </div>
+</footer>
+  
+  <script>
+      var disqus_shortname = 'orbem';
+      var disqus_config = function () {
+          this.page.url = 'https://caijin.tech/blog2018/03/22/2018-03-22-mine-sweeping/';
+          this.page.identifier = '2018/03/22/2018-03-22-mine-sweeping/';
+      };
+      (function () {
+          var d = document, s = d.createElement('script');
+          s.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.body || d.head).appendChild(s);
+      })();
+  </script>
+
+  
+<script src="/blog/js/highlight.js"></script>
+
+</body>
+</html>
+
+

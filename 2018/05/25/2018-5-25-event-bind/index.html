@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>JS 事件委托 - 蔡锦的博客 | CAIJIN BLOG</title>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-131749872-3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-131749872-3');
+</script>
+
+<link rel="stylesheet" href="/blog/css/osimple.css">
+
+
+<link rel="stylesheet" href="/blog/css/theme/theme0.css">
+
+<link rel="shortcut icon" href="/blog/favicon.ico"> 
+  
+<link rel="stylesheet" href="/blog/css/arduino-light.css">
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+  <div class="header-menu post-header-menu">
+    <a class="left" href="/blog/">CAIJIN BLOG</a>
+    <div class="right">
+      
+        <a href="/blog/">HOME</a>
+      
+        <a href="/blog/archives/">ARCHIVE</a>
+      
+        <a href="/blog/about/">ABOUT</a>
+      
+    </div>
+  </div>
+  <main class="page-container">
+    <div class="top-inner">
+      <h1 class="page-title">
+        JS 事件委托
+      </h1>
+      
+        <time datetime="2018-05-25T00:00:00.000Z">
+            Posted by Orbem on May 25th 2018
+        </time>
+      
+      
+        <ul class="tag-list">
+          
+            <li class="tag-list-item">
+              <a href="/blog/tags/JavaScript/">JavaScript</a>
+            </li>
+          
+        </ul>
+      
+    </div>
+    <article class="post">
+        <p>面试被问到事件委托了，虽然很早之前就使用过事件委托，但是面试的时候居然没有能够讲清楚，再总结一下吧。</p>
+<span id="more"></span>
+
+<blockquote>
+<p>第一次经历面试，真的很紧张，很多自己明明会的东西也说不清，实在是丢脸。面试估计已经凉凉 了，吸取一下教训吧，学习的时候一定要学习扎实了。</p>
+</blockquote>
+<h2 id="什么是事件委托"><a href="#什么是事件委托" class="headerlink" title="什么是事件委托"></a>什么是事件委托</h2><p>事件委托就是利用冒泡的原理，把事件加到父元素或祖先元素上，触发执行效果。</p>
+<p>引用个的例子：</p>
+<blockquote>
+<p>有三个同事预计会在周一收到快递。为签收快递，有两种办法：一是三个人在公司门口等快递；二是委托给前台MM代为签收。现实当中，我们大都采用委托的方案（公司也不会容忍那么多员工站在门口就为了等快递）。前台MM收到快递后，她会判断收件人是谁，然后按照收件人的要求签收，甚至代为付款。这种方案还有一个优势，那就是即使公司里来了新员工（不管多少），前台MM也会在收到寄给新员工的快递后核实并代为签收。</p>
+</blockquote>
+<p><strong>那么为什么需要事件委托：</strong></p>
+<ul>
+<li>优点1: 提高 JavaScript 性能。事件委托可以显著的提高事件的处理速度，减少内存的占用。</li>
+<li>优点2: 动态的添加DOM元素，不需要因为元素的改动而修改事件绑定。</li>
+</ul>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p><strong>传统写法</strong></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">&lt;ul id=<span class="string">&quot;list&quot;</span>&gt;</span><br><span class="line">  <span class="xml"><span class="tag">&lt;<span class="name">li</span> <span class="attr">id</span>=<span class="string">&quot;item1&quot;</span>&gt;</span>item1<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line">  <span class="xml"><span class="tag">&lt;<span class="name">li</span> <span class="attr">id</span>=<span class="string">&quot;item2&quot;</span>&gt;</span>item2<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line">  <span class="xml"><span class="tag">&lt;<span class="name">li</span> <span class="attr">id</span>=<span class="string">&quot;item3&quot;</span>&gt;</span>item3<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line">&lt;/ul&gt;</span><br><span class="line"></span><br><span class="line"><span class="xml"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="javascript"></span></span></span><br><span class="line"><span class="javascript"><span class="xml">  <span class="keyword">let</span> item1 = <span class="built_in">document</span>.getElementById(<span class="string">&quot;item1&quot;</span>);</span></span></span><br><span class="line"><span class="javascript"><span class="xml">  <span class="keyword">let</span> item2 = <span class="built_in">document</span>.getElementById(<span class="string">&quot;item2&quot;</span>);</span></span></span><br><span class="line"><span class="javascript"><span class="xml">  <span class="keyword">let</span> item3 = <span class="built_in">document</span>.getElementById(<span class="string">&quot;item3&quot;</span>);</span></span></span><br><span class="line"><span class="javascript"><span class="xml"></span></span></span><br><span class="line"><span class="javascript"><span class="xml">  item1.onclick = <span class="function">() =&gt;</span> &#123;</span></span></span><br><span class="line"><span class="javascript"><span class="xml">    alert(<span class="string">&quot;hello item1&quot;</span>);</span></span></span><br><span class="line"><span class="javascript"><span class="xml">  &#125;</span></span></span><br><span class="line"><span class="javascript"><span class="xml">  item2.onclick = <span class="function">() =&gt;</span> &#123;</span></span></span><br><span class="line"><span class="javascript"><span class="xml">    alert(<span class="string">&quot;hello item2&quot;</span>);</span></span></span><br><span class="line"><span class="javascript"><span class="xml">  &#125;</span></span></span><br><span class="line"><span class="javascript"><span class="xml">  item3.onclick = <span class="function">() =&gt;</span> &#123;</span></span></span><br><span class="line"><span class="javascript"><span class="xml">    alert(<span class="string">&quot;hello item3&quot;</span>);</span></span></span><br><span class="line"><span class="javascript"><span class="xml">  &#125;</span></span></span><br><span class="line"><span class="javascript"><span class="xml"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>试想，如果需要绑定 100 个 <code>li</code> 元素，那么岂不是需要绑定 100 个事件（浪费内存）。</li>
+<li>当添加一个 DOM 元素的时候，传统的写法还需要再绑定新添加的 DOM。</li>
+</ul>
+<p><strong>事件委托</strong></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">&lt;ul id=<span class="string">&quot;list&quot;</span>&gt;</span><br><span class="line">  <span class="xml"><span class="tag">&lt;<span class="name">li</span> <span class="attr">id</span>=<span class="string">&quot;item1&quot;</span>&gt;</span>item1<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line">  <span class="xml"><span class="tag">&lt;<span class="name">li</span> <span class="attr">id</span>=<span class="string">&quot;item2&quot;</span>&gt;</span>item2<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line">  <span class="xml"><span class="tag">&lt;<span class="name">li</span> <span class="attr">id</span>=<span class="string">&quot;item3&quot;</span>&gt;</span>item3<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line">&lt;/ul&gt;</span><br><span class="line"></span><br><span class="line"><span class="xml"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="javascript"></span></span></span><br><span class="line"><span class="javascript"><span class="xml">  <span class="keyword">let</span> ul = <span class="built_in">document</span>.querySelector(<span class="string">&#x27;#list&#x27;</span>);</span></span></span><br><span class="line"><span class="javascript"><span class="xml">  ul.addEventListener(<span class="string">&#x27;click&#x27;</span>, <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span></span></span><br><span class="line"><span class="javascript"><span class="xml">    <span class="built_in">console</span>.log(<span class="string">&#x27;hello &#x27;</span> + event.target.innerText)</span></span></span><br><span class="line"><span class="javascript"><span class="xml">  &#125;)</span></span></span><br><span class="line"><span class="javascript"><span class="xml"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>利用事件委托，只需要给父元素添加了事件，就可以给所有 <code>li</code> 绑定事件，而不必要给每个 <code>li</code> 分别添加事件。这样就非常节省内存了，也很方便。</p>
+<p>同时实现了动态添加 DOM 的时候不需要再添加事件。例子：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">&lt;ul id=<span class="string">&quot;list&quot;</span>&gt;</span><br><span class="line">  <span class="xml"><span class="tag">&lt;<span class="name">li</span> <span class="attr">id</span>=<span class="string">&quot;item1&quot;</span>&gt;</span>item1<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line">  <span class="xml"><span class="tag">&lt;<span class="name">li</span> <span class="attr">id</span>=<span class="string">&quot;item2&quot;</span>&gt;</span>item2<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line">  <span class="xml"><span class="tag">&lt;<span class="name">li</span> <span class="attr">id</span>=<span class="string">&quot;item3&quot;</span>&gt;</span>item3<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line">&lt;/ul&gt;</span><br><span class="line"></span><br><span class="line"><span class="xml"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="javascript"></span></span></span><br><span class="line"><span class="javascript"><span class="xml">  <span class="keyword">let</span> ul = <span class="built_in">document</span>.querySelector(<span class="string">&#x27;#list&#x27;</span>);</span></span></span><br><span class="line"><span class="javascript"><span class="xml">  ul.addEventListener(<span class="string">&#x27;click&#x27;</span>, <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span></span></span><br><span class="line"><span class="javascript"><span class="xml">    <span class="built_in">console</span>.log(<span class="string">&#x27;hello &#x27;</span> + event.target.innerText)</span></span></span><br><span class="line"><span class="javascript"><span class="xml">  &#125;)</span></span></span><br><span class="line"><span class="javascript"><span class="xml">  <span class="keyword">let</span> newVal = <span class="string">`&lt;li id=&quot;item4&quot;&gt;item4&lt;/li&gt;`</span></span></span></span><br><span class="line"><span class="javascript"><span class="xml">  ul.innerHTML = ul.innerHTML + newVal</span></span></span><br><span class="line"><span class="javascript"><span class="xml"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>这个时候点击新添加的 item4 会发现打印了 <code>hello item4</code> 说明 item4 绑定了事件，即事件委托可以为新添加的 DOM 元素动态的添加事件。</p>
+
+    </article>
+    <div class="pager-post">
+    
+      <a class="prev-link" href="/blog/2018/06/06/2018-06-08-JS%E4%BA%8C%E6%90%9C%E7%B4%A2%E5%8F%89%E6%A0%91/">
+        <span>PREVIOUS</span>
+        <p>JavaScript 二叉搜索树</p>
+      </a>
+    
+    
+    
+      <a class="next-link" href="/blog/2018/05/20/2018-5-20-arr-copy/">
+        <span>NEXT</span>
+        <p>JS 的深拷贝和浅拷贝总结</p>
+      </a>
+    
+  </div>
+    
+  <div class="post-comment-wrapper">
+      <div id="disqus_thread"></div>
+  </div>
+
+    <div class="post-all-tags">
+      <h1 class="title">ALL TAGS</h1>
+      <ul class="all-tag-list">
+    
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E6%B8%B8%E6%88%8F/">
+          游戏
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/CSS/">
+          CSS
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/JavaScript/">
+          JavaScript
+          <span class="count">
+            8
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+          数据结构
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E7%94%9F%E6%B4%BB/">
+          生活
+          <span class="count">
+            4
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/Git/">
+          Git
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E5%90%8E%E7%AB%AF/">
+          后端
+          <span class="count">
+            2
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/Vue/">
+          Vue
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E7%A7%BB%E5%8A%A8%E7%AB%AF/">
+          移动端
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+    
+  </ul>
+    </div>
+  </main>
+  <footer>
+  <div class="connect-inner">
+      
+        <a href="https://github.com/caijinyc" target="_blank" class="github">
+          <i class="iconfont icon-github"></i>
+        </a>
+      
+        <a href="https://juejin.im/user/5acc88a8f265da23a2297002" target="_blank" class="juejin">
+          <i class="iconfont icon-juejin"></i>
+        </a>
+      
+        <a href="https://www.zhihu.com/people/adherds/activities" target="_blank" class="zhihu">
+          <i class="iconfont icon-zhihu"></i>
+        </a>
+      
+  </div>
+  <div class="bottom-inner">
+    <p class="theme">Theme <a target="_blank" rel="noopener" href="https://github.com/orbem/hexo-theme-osimple">OSimple</a> by Caijinyc</p>
+    <p class="copyright">Copyright © 2019 Cai Jin & Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a></p> 
+  </div>
+</footer>
+  
+  <script>
+      var disqus_shortname = 'orbem';
+      var disqus_config = function () {
+          this.page.url = 'https://caijin.tech/blog2018/05/25/2018-5-25-event-bind/';
+          this.page.identifier = '2018/05/25/2018-5-25-event-bind/';
+      };
+      (function () {
+          var d = document, s = d.createElement('script');
+          s.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.body || d.head).appendChild(s);
+      })();
+  </script>
+
+  
+<script src="/blog/js/highlight.js"></script>
+
+</body>
+</html>
+
+

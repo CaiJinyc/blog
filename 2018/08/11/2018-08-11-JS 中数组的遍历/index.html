@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>JS 中数组的遍历 - 蔡锦的博客 | CAIJIN BLOG</title>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-131749872-3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-131749872-3');
+</script>
+
+<link rel="stylesheet" href="/blog/css/osimple.css">
+
+
+<link rel="stylesheet" href="/blog/css/theme/theme0.css">
+
+<link rel="shortcut icon" href="/blog/favicon.ico"> 
+  
+<link rel="stylesheet" href="/blog/css/arduino-light.css">
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+  <div class="header-menu post-header-menu">
+    <a class="left" href="/blog/">CAIJIN BLOG</a>
+    <div class="right">
+      
+        <a href="/blog/">HOME</a>
+      
+        <a href="/blog/archives/">ARCHIVE</a>
+      
+        <a href="/blog/about/">ABOUT</a>
+      
+    </div>
+  </div>
+  <main class="page-container">
+    <div class="top-inner">
+      <h1 class="page-title">
+        JS 中数组的遍历
+      </h1>
+      
+        <time datetime="2018-08-11T00:00:00.000Z">
+            Posted by Orbem on August 11th 2018
+        </time>
+      
+      
+        <ul class="tag-list">
+          
+            <li class="tag-list-item">
+              <a href="/blog/tags/JavaScript/">JavaScript</a>
+            </li>
+          
+        </ul>
+      
+    </div>
+    <article class="post">
+        <p>总结一下JS中遍历常用的一些方法。<span id="more"></span></p>
+<h3 id="1-for-循环"><a href="#1-for-循环" class="headerlink" title="1.for 循环"></a>1.for 循环</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> arr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(arr[i])</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 1</span></span><br><span class="line"><span class="comment">// 2</span></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>这是一种常用的遍历方法，可以在 for 循环中使用 <code>break</code> 和 <code>continue</code> 方法来跳出。</p>
+<h3 id="2-for…in-（对象也可以使用）"><a href="#2-for…in-（对象也可以使用）" class="headerlink" title="2. for…in （对象也可以使用）"></a>2. for…in （对象也可以使用）</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> arr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]</span><br><span class="line">arr.foo = <span class="string">&#x27;123&#x27;</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i <span class="keyword">in</span> arr) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(arr[i])</span><br><span class="line">    <span class="keyword">if</span> (arr[i] = <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 1</span></span><br><span class="line"><span class="comment">// 2</span></span><br><span class="line">...</span><br><span class="line"><span class="comment">// 123</span></span><br></pre></td></tr></table></figure>
+
+<p><code>for...in</code> 循环不仅可以遍历对象，也可以遍历数组。当 “对象” 为数组时，“变量” 指的是数组的 “索引”，当 “对象” 为对象是，“变量” 指的是对象的 “属性”。</p>
+<p><strong>但是因为还会遍历非键值，以及原型属性所以尽量不要使用。</strong></p>
+<h3 id="3-for…of"><a href="#3-for…of" class="headerlink" title="3. for…of"></a>3. for…of</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> arr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i <span class="keyword">of</span> arr) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(i)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 1</span></span><br><span class="line"><span class="comment">// 2</span></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>与 for…in 不同的是，<strong>for…of 返回的直接是值</strong>。而 for…in 得到的是 key，<strong>且 for…of 无法遍历对象</strong>。</p>
+<h3 id="4-map"><a href="#4-map" class="headerlink" title="4. map()"></a>4. map()</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> num = numbers.map(<span class="function">(<span class="params">n</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> n + <span class="number">1</span></span><br><span class="line">&#125;)</span><br><span class="line">num</span><br><span class="line"><span class="comment">// [2, 3, 4]</span></span><br><span class="line"></span><br><span class="line">numbers</span><br><span class="line"><span class="comment">// [1, 2, 3]</span></span><br></pre></td></tr></table></figure>
+
+<p><code>map</code> 方法将数组的所有成员依次传入参数函数，<strong>然后把每一次的执行结果组成一个新数组返回</strong>。</p>
+<p><code>map</code> 方法接受一个函数作为参数。该函数调用时，<code>map</code>方法向它传入三个参数：当前成员、当前位置和数组本身。<strong>该方法不会改变原数组。</strong></p>
+<h3 id="5-forEach"><a href="#5-forEach" class="headerlink" title="5. forEach()"></a>5. forEach()</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</span><br><span class="line"></span><br><span class="line">numbers.forEach(<span class="function">(<span class="params">n</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> n + <span class="number">1</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment">// [2, 3, 4]</span></span><br><span class="line"></span><br><span class="line">numbers</span><br><span class="line"><span class="comment">// [1, 2, 3]</span></span><br></pre></td></tr></table></figure>
+
+<p> <code>forEach</code> 和 <code>map</code> 的区别是它只操作数据本身，<strong>并没有返回值</strong>。而 <code>map</code> 会返回一个新的数组~，但是相同点是它们的参数函数都可以传入三个参数。<strong>该方法不会改变原数组。</strong></p>
+<h3 id="6-filter"><a href="#6-filter" class="headerlink" title="6. filter()"></a>6. filter()</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>].filter(<span class="function">(<span class="params">elem</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> (elem &gt; <span class="number">3</span>);</span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment">// [4, 5]</span></span><br></pre></td></tr></table></figure>
+
+<p><code>filter</code> 方法用于过滤数组成员，<strong>满足条件的成员组成一个新数组返回</strong>。</p>
+<p>它的参数是一个函数，所有数组成员依次执行该函数，返回结果为<code>true</code>的成员组成一个新数组返回。<strong>该方法不会改变原数组。</strong></p>
+<h3 id="7-some"><a href="#7-some" class="headerlink" title="7. some()"></a>7. some()</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> arr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"><span class="keyword">debugger</span>;</span><br><span class="line">arr.some(<span class="function">(<span class="params">elem</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> elem &gt;= <span class="number">3</span>;</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<p><code>some</code> 方法是用来判断数组的内容是否符合某种条件。接受的参数和 map, forEach 一样。</p>
+<p><code>some</code> 方法是只要一个成员的返回值是<code>true</code>，则整个<code>some</code>方法的返回值就是<code>true</code>，否则返回<code>false</code>。<strong>且只要有一个成员能返回 true，那么遍历就会停止！</strong></p>
+<p>和 <code>some</code> 相似的还有 <code>every</code>。</p>
+<h3 id="8-every"><a href="#8-every" class="headerlink" title="8. every()"></a>8. every()</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> arr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line">arr.every(<span class="function">(<span class="params">elem</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&#x27;didi:&#x27;</span>, elem)</span><br><span class="line">  <span class="keyword">return</span> elem &gt;= <span class="number">3</span>;</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// false</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> arr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line">arr.every(<span class="function">(<span class="params">elem</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> elem &gt;= <span class="number">1</span>;</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<p><code>every</code> 的区别是，当所有成员都返回 <code>true</code> 的时候，才会返回 <code>true</code>。<strong>且只要有一个成员能返回 false，那么遍历就会停止！</strong></p>
+<p>参考：<a target="_blank" rel="noopener" href="http://javascript.ruanyifeng.com/stdlib/array.html#toc13">阮一峰 JavaScript 标准参考指南</a></p>
+
+    </article>
+    <div class="pager-post">
+    
+      <a class="prev-link" href="/blog/2018/08/12/2018-08-12-%E4%B8%83%E6%9C%88%E5%AE%9E%E4%B9%A0%E5%B0%8F%E8%AE%B0/">
+        <span>PREVIOUS</span>
+        <p>七月实习小记</p>
+      </a>
+    
+    
+    
+      <a class="next-link" href="/blog/2018/06/06/2018-06-08-JS%E4%BA%8C%E6%90%9C%E7%B4%A2%E5%8F%89%E6%A0%91/">
+        <span>NEXT</span>
+        <p>JavaScript 二叉搜索树</p>
+      </a>
+    
+  </div>
+    
+  <div class="post-comment-wrapper">
+      <div id="disqus_thread"></div>
+  </div>
+
+    <div class="post-all-tags">
+      <h1 class="title">ALL TAGS</h1>
+      <ul class="all-tag-list">
+    
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E6%B8%B8%E6%88%8F/">
+          游戏
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/CSS/">
+          CSS
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/JavaScript/">
+          JavaScript
+          <span class="count">
+            8
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+          数据结构
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E7%94%9F%E6%B4%BB/">
+          生活
+          <span class="count">
+            4
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/Git/">
+          Git
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E5%90%8E%E7%AB%AF/">
+          后端
+          <span class="count">
+            2
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/Vue/">
+          Vue
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E7%A7%BB%E5%8A%A8%E7%AB%AF/">
+          移动端
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+    
+  </ul>
+    </div>
+  </main>
+  <footer>
+  <div class="connect-inner">
+      
+        <a href="https://github.com/caijinyc" target="_blank" class="github">
+          <i class="iconfont icon-github"></i>
+        </a>
+      
+        <a href="https://juejin.im/user/5acc88a8f265da23a2297002" target="_blank" class="juejin">
+          <i class="iconfont icon-juejin"></i>
+        </a>
+      
+        <a href="https://www.zhihu.com/people/adherds/activities" target="_blank" class="zhihu">
+          <i class="iconfont icon-zhihu"></i>
+        </a>
+      
+  </div>
+  <div class="bottom-inner">
+    <p class="theme">Theme <a target="_blank" rel="noopener" href="https://github.com/orbem/hexo-theme-osimple">OSimple</a> by Caijinyc</p>
+    <p class="copyright">Copyright © 2019 Cai Jin & Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a></p> 
+  </div>
+</footer>
+  
+  <script>
+      var disqus_shortname = 'orbem';
+      var disqus_config = function () {
+          this.page.url = 'https://caijin.tech/blog2018/08/11/2018-08-11-JS 中数组的遍历/';
+          this.page.identifier = '2018/08/11/2018-08-11-JS 中数组的遍历/';
+      };
+      (function () {
+          var d = document, s = d.createElement('script');
+          s.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.body || d.head).appendChild(s);
+      })();
+  </script>
+
+  
+<script src="/blog/js/highlight.js"></script>
+
+</body>
+</html>
+
+

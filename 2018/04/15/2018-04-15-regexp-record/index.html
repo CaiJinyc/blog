@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>JS 正则表达式 - 蔡锦的博客 | CAIJIN BLOG</title>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-131749872-3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-131749872-3');
+</script>
+
+<link rel="stylesheet" href="/blog/css/osimple.css">
+
+
+<link rel="stylesheet" href="/blog/css/theme/theme0.css">
+
+<link rel="shortcut icon" href="/blog/favicon.ico"> 
+  
+<link rel="stylesheet" href="/blog/css/arduino-light.css">
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+  <div class="header-menu post-header-menu">
+    <a class="left" href="/blog/">CAIJIN BLOG</a>
+    <div class="right">
+      
+        <a href="/blog/">HOME</a>
+      
+        <a href="/blog/archives/">ARCHIVE</a>
+      
+        <a href="/blog/about/">ABOUT</a>
+      
+    </div>
+  </div>
+  <main class="page-container">
+    <div class="top-inner">
+      <h1 class="page-title">
+        JS 正则表达式
+      </h1>
+      
+        <time datetime="2018-04-15T00:00:00.000Z">
+            Posted by Orbem on April 15th 2018
+        </time>
+      
+      
+        <ul class="tag-list">
+          
+            <li class="tag-list-item">
+              <a href="/blog/tags/JavaScript/">JavaScript</a>
+            </li>
+          
+        </ul>
+      
+    </div>
+    <article class="post">
+        <p>因为自己的正则学的真的不是很好，所以重新学习一边，顺便记录一下，以备复习。<span id="more"></span></p>
+<h3 id="正则工具"><a href="#正则工具" class="headerlink" title="正则工具"></a>正则工具</h3><p>推荐这款正则的工具，Github：<a target="_blank" rel="noopener" href="https://github.com/javallone/regexper-static">Regexper</a>，用图片解释的正则，很方便很实用。因为是国外的网站，有时候会上不去，所以推荐下载下来本地运行，这样会比较方便。</p>
+<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><ul>
+<li>字面量: <code>var reg = /\bis\b/g;</code></li>
+<li>构造函数：<code>var reg = new RegExp(&#39;\\d\\w\\d&#39;, &#39;g&#39;)</code></li>
+</ul>
+<p>使用构造函数的时候需要注意 <code>\</code> 反斜杠是需要转义的。</p>
+<h3 id="修饰符"><a href="#修饰符" class="headerlink" title="修饰符"></a>修饰符</h3><ul>
+<li>g：global 全文匹配</li>
+<li>i： ignoreCase 或略大小写</li>
+<li>m: multiline 换行符当成新的一行</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> reg = <span class="regexp">/\d/gim</span></span><br><span class="line">reg.global</span><br><span class="line"><span class="comment">//true</span></span><br><span class="line"></span><br><span class="line">reg.global = <span class="literal">false</span></span><br><span class="line">reg.global</span><br><span class="line"><span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<p>修饰符默认都是 false，而且都是只读的，只能在创建的时候确认，创建之后是无法修改的。</p>
+<h2 id="字符类"><a href="#字符类" class="headerlink" title="字符类"></a>字符类</h2><p>**[]**：[abc] 代表 a、b、c 中的一个匹配就可以。</p>
+<h3 id="字符类取反向"><a href="#字符类取反向" class="headerlink" title="字符类取反向"></a>字符类取反向</h3><p><strong>^</strong>：取反向类。</p>
+<h3 id="范围类"><a href="#范围类" class="headerlink" title="范围类"></a>范围类</h3><p><strong>[a-z]<strong>：从 a 到 z 的任意字符，这是个</strong>闭区间</strong>，然后 [a-zA-Z] 可以连写。</p>
+<h3 id="预定义类"><a href="#预定义类" class="headerlink" title="预定义类"></a>预定义类</h3><ul>
+<li><code>.</code>：等价于 [^\r\n] 除了回车符和换行符之外的所有字符</li>
+<li><code>\d</code>：等价于 [0-9] 数字字符</li>
+<li><code>\D</code>：非数字字符</li>
+<li><code>\s</code>：[\t\n\x0B\f\r] 空白符</li>
+<li><code>\S</code>：非空白符</li>
+<li><code>\w</code>：等价于 [a-zA-Z_0-9] 单词字符（字母、数字、下划线）</li>
+<li><code>\W</code>：非单词字符</li>
+</ul>
+<h3 id="边界"><a href="#边界" class="headerlink" title="边界"></a>边界</h3><ul>
+<li><code>^</code>：以xxx开头 /^@./</li>
+<li><code>$</code>：以xxx结尾 /.@$/</li>
+<li><code>\b</code>：单词边界</li>
+</ul>
+<h3 id="量词"><a href="#量词" class="headerlink" title="量词"></a>量词</h3><ul>
+<li><code>?</code>：出现0次或1次（最多出现一次）</li>
+<li><code>+</code>：出现1次或多次（至少出现一次）</li>
+<li><code>*</code>：出现0次或多次</li>
+<li><code>&#123;n&#125;</code>：出现n次</li>
+<li><code>&#123;n,m&#125;</code>：出现n到m次</li>
+<li><code>&#123;n,&#125;</code>：至少出现n次</li>
+</ul>
+<h3 id="贪婪模式"><a href="#贪婪模式" class="headerlink" title="贪婪模式"></a>贪婪模式</h3><p>正则表达式会匹配尽量多的值，直到匹配失败。例如：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="string">&#x27;12345678&#x27;</span>.replace(<span class="regexp">/\d&#123;3,6&#125;/</span>, <span class="string">&#x27;M&#x27;</span>)</span><br><span class="line"><span class="comment">// &quot;M78&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="非贪婪模式"><a href="#非贪婪模式" class="headerlink" title="非贪婪模式"></a>非贪婪模式</h3><p>如果要取消贪婪模式，只需要在量词后面加一个问号 <code>/\d&#123;4,6&#125;?/</code>。例如：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="string">&#x27;12345678&#x27;</span>.replace(<span class="regexp">/\d&#123;3,6&#125;?/</span>, <span class="string">&#x27;M&#x27;</span>)</span><br><span class="line"><span class="comment">// &quot;M45678&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="分组"><a href="#分组" class="headerlink" title="分组"></a>分组</h3><p>使用  () 可以达到分组功能<br><code>abcd&#123;4&#125; ----&gt; (abcd)&#123;4&#125;</code></p>
+<h4 id="分组捕获"><a href="#分组捕获" class="headerlink" title="分组捕获"></a>分组捕获</h4><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="string">&#x27;2011-01-12&#x27;</span>.replace(<span class="regexp">/(\d&#123;4&#125;)-(\d&#123;2&#125;)-(\d&#123;2&#125;)/</span>, <span class="string">&#x27;$2--$3--$1&#x27;</span>)</span><br><span class="line"><span class="comment">// &#x27;01--12--2011&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="忽略分组"><a href="#忽略分组" class="headerlink" title="忽略分组"></a>忽略分组</h4><p>不希望捕获某些分组，只需要在分组内加上 <code>? : </code>，就可以了。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="string">&#x27;2011-01-12&#x27;</span>.replace(<span class="regexp">/(?:\d&#123;4&#125;)-(\d&#123;2&#125;)-(\d&#123;2&#125;)/</span>, <span class="string">&#x27;$2--$3--$1&#x27;</span>)</span><br><span class="line"><span class="comment">// &#x27;12--$3--01&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="或"><a href="#或" class="headerlink" title="或"></a>或</h3><p>可以用 | 达到效果，<code>Byron | Casper</code>，使用分组来不干涉其他表达式。<br><code>BBry(on|CA)sper</code></p>
+<h3 id="前瞻"><a href="#前瞻" class="headerlink" title="前瞻"></a>前瞻</h3><p>正则表达式从文本头部向尾部开始解析，所以文本的尾部方向，称之为“前”（这个理解起来有点难，我想了好久）。所谓<strong>前瞻</strong>就是正则在匹配到规则的时候，向前检查是否符合断言。（其实还有后顾，但是 JS 暂时好像没有支持）。</p>
+<h4 id="正向前瞻-exp-assert"><a href="#正向前瞻-exp-assert" class="headerlink" title="正向前瞻 exp(?=assert)"></a>正向前瞻 exp(?=assert)</h4><p>正向前瞻指的就是，表达式匹配以后还需要向前检查是否符合（正向）断言（assert）。例子：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="string">&#x27;a2*34v8&#x27;</span>.replace(<span class="regexp">/\w(?=\d)/g</span>, <span class="string">&#x27;X&#x27;</span>)</span><br><span class="line"><span class="comment">// &#x27;X2*X4X8&#x27;</span></span><br></pre></td></tr></table></figure>
+<h4 id="反向前瞻-exp-assert"><a href="#反向前瞻-exp-assert" class="headerlink" title="反向前瞻 exp(?!assert)"></a>反向前瞻 exp(?!assert)</h4><p>反向前瞻指的就是，表达式匹配以后还需要向前检查是否不符合（反向）断言（assert）。例子：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="string">&#x27;a2*34v8&#x27;</span>.replace(<span class="regexp">/\w(?!\d)/g</span>, <span class="string">&#x27;X&#x27;</span>)</span><br><span class="line"><span class="comment">// &#x27;aX*3XvX&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="对象属性"><a href="#对象属性" class="headerlink" title="对象属性"></a>对象属性</h2><h3 id="RegExp-prototype-test-str"><a href="#RegExp-prototype-test-str" class="headerlink" title="RegExp.prototype.test(str)"></a>RegExp.prototype.test(str)</h3><p>用于测试字符串参数中是否存在匹配正则表达式模式的字符串，存在返回 true，否则返回 false。  </p>
+<p><strong>非全局 （没g）</strong><br>当不使用全局的时候，test() 方法会直接返回 true，或者 false。</p>
+<p><strong>全局 （有g）</strong><br>这个时候就会被 lastIndex（当前匹配结果的，最后一个字符的，下一个字符） 影响了，因为每次匹配之后，它的 lastIndex 都会改变，这时候就会影响到 test() 方法的结果。看例子：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> reg = <span class="regexp">/\w/g</span></span><br><span class="line"><span class="keyword">while</span>(reg.test(<span class="string">&#x27;ab&#x27;</span>)) &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(reg2.lastIndex)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 1</span></span><br><span class="line"><span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+<p>当但三次循环的时候，因为 lastIndex 为 2 所以就直接返回了 false，循环结束。</p>
+<h3 id="RegExp-prototype-exec-str"><a href="#RegExp-prototype-exec-str" class="headerlink" title="RegExp.prototype.exec(str)"></a>RegExp.prototype.exec(str)</h3><p>使用正则对字符串执行搜索，并将更新全局 RegExp 对象的属性以反映匹配结果。</p>
+<ul>
+<li>如果没有匹配返回 null，否则返回一个结果数组<ul>
+<li>index 声明匹配文本的第一个字符的位置</li>
+<li>input 存放被检索的字符串 string</li>
+</ul>
+</li>
+</ul>
+<p><strong>非全局 （没g）</strong>  </p>
+<ul>
+<li>第一个元素是相匹配的文本</li>
+<li>第二个元素是与 正则 的第一个字表达式相匹配的文本（如果有的话）</li>
+<li>第三个就是与 正则 的第二个字表达式相匹配的文本（如果有有），以此类推<br>例子：<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">/\d\w\d/.exec(<span class="string">&#x27;a1b2c3d4e5&#x27;</span>)</span><br><span class="line"><span class="comment">// [&quot;1b2&quot;, index: 1, input: &quot;a1b2c3d4e5&quot;, groups: undefined]</span></span><br><span class="line"></span><br><span class="line">/\d(\w)\d/.exec(<span class="string">&#x27;a1b2c3d4e5&#x27;</span>)</span><br><span class="line"><span class="comment">// [&quot;1b2&quot;, &quot;b&quot;, index: 1, input: &quot;a1b2c3d4e5&quot;, groups: undefined]</span></span><br><span class="line"></span><br><span class="line">/\d(\w)(\d)/.exec(<span class="string">&#x27;a1b2c3d4e5&#x27;</span>)</span><br><span class="line"><span class="comment">// [&quot;1b2&quot;, &quot;b&quot;, &quot;2&quot;, index: 1, input: &quot;a1b2c3d4e5&quot;, groups: undefined]</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>全局（有g）</strong>  </p>
+<p>直接看例子吧：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> ts = <span class="string">&#x27;a1b2c3d4e5&#x27;</span></span><br><span class="line"><span class="keyword">let</span> reg = <span class="regexp">/\d(\w)(\d)/g</span></span><br><span class="line"><span class="keyword">let</span> ret</span><br><span class="line"><span class="keyword">while</span> (ret = reg.exec(ts)) &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(ret)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// [&quot;1b2&quot;, &quot;b&quot;, &quot;2&quot;, index: 1, input: &quot;a1b2c3d4e5&quot;, groups: undefined]</span></span><br><span class="line"><span class="comment">// [&quot;3d4&quot;, &quot;d&quot;, &quot;4&quot;, index: 5, input: &quot;a1b2c3d4e5&quot;, groups: undefined]</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="String-prototype-search-reg"><a href="#String-prototype-search-reg" class="headerlink" title="String.prototype.search(reg)"></a>String.prototype.search(reg)</h3><ul>
+<li>search() 方法用于检索字符串中指定的子字符串，或检索与正则表达式相匹配的子字符串。</li>
+<li>方法返回第一个匹配结果 index，查找不到返回 -1。</li>
+<li>search() 方法不执行全局匹配，它将忽略标志 g，并且总是从字符串的开始进行检索。</li>
+</ul>
+<h3 id="String-prototype-match-reg"><a href="#String-prototype-match-reg" class="headerlink" title="String.prototype.match(reg)"></a>String.prototype.match(reg)</h3><ul>
+<li>match() 方法将检索字符串，以找到一个或多个与 regexp 匹配的文本。</li>
+<li>regexp 是否具有标志 g 对结果影响很大！</li>
+</ul>
+<p><strong>非全局 （没g）</strong></p>
+<ul>
+<li>返回数组的第一个元素存放的匹配文本，而其余的元素存放的是与正则表达式的字表达式匹配的文本。</li>
+<li>除了常规的数组元素之外，返回的数组还含有 2 个对象属性。<ul>
+<li>index 声明位置</li>
+<li>inpu 声明对 stringObject 的引用<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="string">&#x27;a1a2b3c4d5e&#x27;</span>.match(<span class="regexp">/\d(\w)\d/</span>)</span><br><span class="line"> <span class="comment">// [&quot;1a2&quot;, &quot;a&quot;, index: 1, input: &quot;a1a2b3c4d5e&quot;, groups: undefined]</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<p><strong>全局（有g）</strong></p>
+<ul>
+<li>全局检索，找到所有字符串中的所有匹配字符串<ul>
+<li>没有找到任何匹配，返回 null</li>
+<li>如果找到了一个或多个匹配，返回一个数组</li>
+</ul>
+</li>
+<li>数组元素中存放的是字符串中所有的匹配子字符串，不包含 index 和 input</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="string">&#x27;a1a2b3c4d5e&#x27;</span>.match(<span class="regexp">/\d(\w)\d/g</span>)</span><br><span class="line"><span class="comment">// [&quot;1a2&quot;, &quot;3c4&quot;]</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="String-prototype-split-reg"><a href="#String-prototype-split-reg" class="headerlink" title="String.prototype.split(reg)"></a>String.prototype.split(reg)</h3><p>一般的使用：<code>&#39;a,b,c,d&#39;.split(&#39;,&#39;); ---&gt; [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;]&#39;</code></p>
+<p><strong>使用正则</strong></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="string">&#x27;a1a2b3c4d5e&#x27;</span>.split(<span class="regexp">/\d/</span>)</span><br><span class="line"><span class="comment">// [&quot;a&quot;, &quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;, &quot;e&quot;]</span></span><br></pre></td></tr></table></figure>
+<h3 id="String-prototype-replace-reg"><a href="#String-prototype-replace-reg" class="headerlink" title="String.prototype.replace(reg)"></a>String.prototype.replace(reg)</h3><p>replace 的第二个值可以传入 function 来处理复杂的替换。</p>
+<p><strong>function参数含义</strong>：function 会在每次匹配替换的时候调用，有四个参数。返回值就是替换的内容。</p>
+<ol>
+<li>匹配字符串</li>
+<li>正则表达式分组内容，没有分组则没有该参数</li>
+<li>匹配项在字符串中的 index</li>
+<li>原字符串</li>
+</ol>
+<p>例子：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 例子1：没有分组</span></span><br><span class="line"><span class="string">&#x27;a1a2b3c4d5e&#x27;</span>.replace(<span class="regexp">/\d/g</span>, <span class="function">(<span class="params">match, index, o</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">parseInt</span>(match) + <span class="number">5</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment">// &quot;a6a7b8c9d10e&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 例子2：有分组</span></span><br><span class="line"><span class="string">&#x27;a1a2b3c4d5e&#x27;</span>.replace(<span class="regexp">/(\d)\w(\d)/g</span>, <span class="function">(<span class="params">match, g1, g2, index, o</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> g1 + g2</span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment">// &quot;a12b34d5e&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="练习"><a href="#练习" class="headerlink" title="练习"></a>练习</h3><p>使用正则来实现一个时间的函数。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 传入一个实例化后的时间，以及需要的时间格式，如 yyyy-mm-dd</span></span><br><span class="line"><span class="comment">// new Date()，会返回一个Date对象的实例。如果不加参数，实例代表的就是当前时间。</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">formaDate</span> (<span class="params">date, fmt</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 找到 y 字符，然后替换成年</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="regexp">/(y+)/i</span>.test(fmt)) &#123;</span><br><span class="line">    fmt = fmt.replace(<span class="built_in">RegExp</span>.$1, (date.getFullYear() + <span class="string">&#x27;&#x27;</span>).substr(<span class="number">4</span> - <span class="built_in">RegExp</span>.$1.length))</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">let</span> o = &#123;</span><br><span class="line">    <span class="string">&#x27;M+&#x27;</span>: date.getMonth() + <span class="number">1</span>,</span><br><span class="line">    <span class="string">&#x27;d+&#x27;</span>: date.getDate(),</span><br><span class="line">    <span class="string">&#x27;h+&#x27;</span>: date.getHours(),</span><br><span class="line">    <span class="string">&#x27;m+&#x27;</span>: date.getMinutes(),</span><br><span class="line">    <span class="string">&#x27;s+&#x27;</span>: date.getSeconds()</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> k <span class="keyword">in</span> o) &#123;</span><br><span class="line">    <span class="comment">// 找到相应字符，然后进行替换</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">new</span> <span class="built_in">RegExp</span>(<span class="string">`(<span class="subst">$&#123;k&#125;</span>)`</span>, <span class="string">&#x27;i&#x27;</span>).test(fmt)) &#123;</span><br><span class="line">      <span class="keyword">let</span> str = o[k] + <span class="string">&#x27;&#x27;</span></span><br><span class="line">      fmt = fmt.replace(<span class="built_in">RegExp</span>.$1, <span class="function">(<span class="params">m</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// 是否需要补全0，例如 8:5 --&gt; 08:05</span></span><br><span class="line">        <span class="comment">// 如果需要，则使用 substr 方法操作</span></span><br><span class="line">        <span class="keyword">if</span> (m.length === <span class="number">2</span>) &#123;          </span><br><span class="line">          str = (<span class="string">&#x27;00&#x27;</span> + str).substr(str.length)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> str</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> fmt</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 然后我们只需要传入实例化的时间，以及时间的格式，就可以返回符合格式的时间，非常的方便</span></span><br><span class="line">formaDate(<span class="keyword">new</span> <span class="built_in">Date</span>(), <span class="string">&#x27;yyyy-mm-dd hh:mm&#x27;</span>)</span><br><span class="line"><span class="comment">// &quot;2018-04-15 20:02&quot;</span></span><br><span class="line">formaDate(<span class="keyword">new</span> <span class="built_in">Date</span>(), <span class="string">&#x27;mm-dd-yyyy&#x27;</span>)</span><br><span class="line"><span class="comment">// &quot;04-15-2018&quot;</span></span><br></pre></td></tr></table></figure>
+
+    </article>
+    <div class="pager-post">
+    
+      <a class="prev-link" href="/blog/2018/04/20/2018-4-20-autoprefix-style/">
+        <span>PREVIOUS</span>
+        <p>JS 中的 autoprefixer</p>
+      </a>
+    
+    
+    
+      <a class="next-link" href="/blog/2018/04/05/2018-04-05-copying-arrays-in-javascript/">
+        <span>NEXT</span>
+        <p>关于 JavaScript 中的复制数组</p>
+      </a>
+    
+  </div>
+    
+  <div class="post-comment-wrapper">
+      <div id="disqus_thread"></div>
+  </div>
+
+    <div class="post-all-tags">
+      <h1 class="title">ALL TAGS</h1>
+      <ul class="all-tag-list">
+    
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E6%B8%B8%E6%88%8F/">
+          游戏
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/CSS/">
+          CSS
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/JavaScript/">
+          JavaScript
+          <span class="count">
+            8
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+          数据结构
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E7%94%9F%E6%B4%BB/">
+          生活
+          <span class="count">
+            4
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/Git/">
+          Git
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E5%90%8E%E7%AB%AF/">
+          后端
+          <span class="count">
+            2
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/Vue/">
+          Vue
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E7%A7%BB%E5%8A%A8%E7%AB%AF/">
+          移动端
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+    
+  </ul>
+    </div>
+  </main>
+  <footer>
+  <div class="connect-inner">
+      
+        <a href="https://github.com/caijinyc" target="_blank" class="github">
+          <i class="iconfont icon-github"></i>
+        </a>
+      
+        <a href="https://juejin.im/user/5acc88a8f265da23a2297002" target="_blank" class="juejin">
+          <i class="iconfont icon-juejin"></i>
+        </a>
+      
+        <a href="https://www.zhihu.com/people/adherds/activities" target="_blank" class="zhihu">
+          <i class="iconfont icon-zhihu"></i>
+        </a>
+      
+  </div>
+  <div class="bottom-inner">
+    <p class="theme">Theme <a target="_blank" rel="noopener" href="https://github.com/orbem/hexo-theme-osimple">OSimple</a> by Caijinyc</p>
+    <p class="copyright">Copyright © 2019 Cai Jin & Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a></p> 
+  </div>
+</footer>
+  
+  <script>
+      var disqus_shortname = 'orbem';
+      var disqus_config = function () {
+          this.page.url = 'https://caijin.tech/blog2018/04/15/2018-04-15-regexp-record/';
+          this.page.identifier = '2018/04/15/2018-04-15-regexp-record/';
+      };
+      (function () {
+          var d = document, s = d.createElement('script');
+          s.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.body || d.head).appendChild(s);
+      })();
+  </script>
+
+  
+<script src="/blog/js/highlight.js"></script>
+
+</body>
+</html>
+
+

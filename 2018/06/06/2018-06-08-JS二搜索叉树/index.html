@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>JavaScript 二叉搜索树 - 蔡锦的博客 | CAIJIN BLOG</title>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-131749872-3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-131749872-3');
+</script>
+
+<link rel="stylesheet" href="/blog/css/osimple.css">
+
+
+<link rel="stylesheet" href="/blog/css/theme/theme0.css">
+
+<link rel="shortcut icon" href="/blog/favicon.ico"> 
+  
+<link rel="stylesheet" href="/blog/css/arduino-light.css">
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+  <div class="header-menu post-header-menu">
+    <a class="left" href="/blog/">CAIJIN BLOG</a>
+    <div class="right">
+      
+        <a href="/blog/">HOME</a>
+      
+        <a href="/blog/archives/">ARCHIVE</a>
+      
+        <a href="/blog/about/">ABOUT</a>
+      
+    </div>
+  </div>
+  <main class="page-container">
+    <div class="top-inner">
+      <h1 class="page-title">
+        JavaScript 二叉搜索树
+      </h1>
+      
+        <time datetime="2018-06-06T00:00:00.000Z">
+            Posted by Orbem on June 6th 2018
+        </time>
+      
+      
+        <ul class="tag-list">
+          
+            <li class="tag-list-item">
+              <a href="/blog/tags/JavaScript/">JavaScript</a>
+            </li>
+          
+            <li class="tag-list-item">
+              <a href="/blog/tags/数据结构/">数据结构</a>
+            </li>
+          
+        </ul>
+      
+    </div>
+    <article class="post">
+        <p>二叉搜索树（创建、遍历、搜索、插入等）、JavaScript 实现翻转二叉树了解一哈。</p>
+<span id="more"></span>
+
+<h2 id="什么是二叉树？"><a href="#什么是二叉树？" class="headerlink" title="什么是二叉树？"></a>什么是二叉树？</h2><p><strong>二叉树的定义：</strong> 二叉树的每个结点至多只有二棵子树（不存在度大于2的结点），二叉树的子树有左右之分，次序不能颠倒。</p>
+<p><strong>二叉查找树（BST）：</strong> 又称为是二叉排序树（Binary Sort Tree）或二叉搜索树。二叉查找树是二叉树的一种，但是它只允许你在左侧节点存储（比父节点）小的值，在右侧节点存储（比父节点）大（或者等于）的值。</p>
+<h2 id="创建一个二叉查找树"><a href="#创建一个二叉查找树" class="headerlink" title="创建一个二叉查找树"></a>创建一个二叉查找树</h2><p>首先创建一个 <code>BinarySearchTree</code> 类。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 使用了 ES6 的 Class 语法</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BinarySearchTree</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="title">constructor</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">    <span class="built_in">this</span>.root = <span class="literal">null</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="title">Node</span>(<span class="params">key</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> left = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">let</span> right = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      key,</span><br><span class="line">      left,</span><br><span class="line">      right</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>来看一下二叉查找树的数据结构组织方式（没有找到二叉搜索树的先用二叉树的代替一下）：</p>
+<img src="https://s2.ax1x.com/2019/01/01/F5KfhR.png" alt="F5KfhR.png" border="0">
+
+<p>二叉树是通过指针（指向下一个节点）来表示节点之间的关系的，所以需要在声明 Node 的时候，定义两个指针，一个指向左边，一个指向右边。 还需要声明一个 root 来保存树的根元素。</p>
+<h2 id="向树中插入一个键（节点）"><a href="#向树中插入一个键（节点）" class="headerlink" title="向树中插入一个键（节点）"></a>向树中插入一个键（节点）</h2><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BinarySearchTree</span>  </span>&#123;</span><br><span class="line">  <span class="comment">// ...省略前面的</span></span><br><span class="line">  </span><br><span class="line">  insert (key) &#123;</span><br><span class="line">    <span class="keyword">let</span> newNode = <span class="built_in">this</span>.Node(key)</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">this</span>.root === <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="comment">// 如果根节点为空，那么插入的节点就为根节点</span></span><br><span class="line">      <span class="built_in">this</span>.root = newNode</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// 如果根节点不为空</span></span><br><span class="line">      <span class="built_in">this</span>.insertNode(<span class="built_in">this</span>.root, newNode)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  insertNode (node, newNode) &#123;</span><br><span class="line">    <span class="comment">// 当新节点比父节点小，插入左边</span></span><br><span class="line">    <span class="keyword">if</span> (newNode.key &lt; node.key) &#123;</span><br><span class="line">      <span class="comment">// 左边没有内容则插入</span></span><br><span class="line">      <span class="keyword">if</span> (node.left === <span class="literal">null</span>) &#123;</span><br><span class="line">        node.left = newNode</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 有内容就继续递归，直到没有内容然后可以插入</span></span><br><span class="line">        <span class="built_in">this</span>.insertNode(node.left, newNode)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// 右边和左边相同，不重复说明</span></span><br><span class="line">      <span class="keyword">if</span> (node.right === <span class="literal">null</span>) &#123;</span><br><span class="line">        node.right = newNode</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.insertNode(node.right, newNode)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为使用了 class 所以没有学过 class 的同学可以先看一下 ES6 的 class，再来看文章。</p>
+<p>仔细分析上面的代码，多看几遍就可以了解其中的奥妙（也可以自己在游览器中运行一下，插入几个值试一下）。</p>
+<p>运行一遍试一下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> m = <span class="keyword">new</span> BinarySearchTree()</span><br><span class="line">m.insert(<span class="number">5</span>)</span><br><span class="line">m.insert(<span class="number">4</span>)</span><br><span class="line">m.insert(<span class="number">3</span>)</span><br><span class="line">m.insert(<span class="number">6</span>)</span><br><span class="line">m.insert(<span class="number">7</span>)</span><br></pre></td></tr></table></figure>
+
+<p>会得到这样的结构：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">key</span>: <span class="number">5</span>,</span><br><span class="line">  <span class="attr">left</span>: &#123;</span><br><span class="line">    <span class="attr">key</span>: <span class="number">4</span>,</span><br><span class="line">    <span class="attr">left</span>: &#123;</span><br><span class="line">      <span class="attr">key</span>: <span class="number">3</span>,</span><br><span class="line">      <span class="attr">left</span>: <span class="literal">null</span>,</span><br><span class="line">      <span class="attr">right</span>: <span class="literal">null</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">right</span>: <span class="literal">null</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">right</span>: &#123;</span><br><span class="line">    <span class="attr">key</span>: <span class="number">6</span>,</span><br><span class="line">    <span class="attr">left</span>: <span class="literal">null</span>,</span><br><span class="line">    <span class="attr">right</span>: &#123;</span><br><span class="line">      <span class="attr">key</span>: <span class="number">7</span>,</span><br><span class="line">      <span class="attr">left</span>: <span class="literal">null</span>,</span><br><span class="line">      <span class="attr">right</span>: <span class="literal">null</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>emmm，真复杂（自己看的都头晕），还是画个图吧。</p>
+<img src="https://s2.ax1x.com/2019/01/01/F5KRAJ.png" alt="F5KRAJ.png" border="0">
+
+<p>会生成这样一个二叉查找树~，插入功能就算完成啦！</p>
+<h2 id="树的遍历"><a href="#树的遍历" class="headerlink" title="树的遍历"></a>树的遍历</h2><p>遍历一棵树是指访问树的每个节点并对它们进行某种操作的过程。访问树会有三种方法：中序、先序、后续。下面分别讲解</p>
+<h3 id="中序遍历"><a href="#中序遍历" class="headerlink" title="中序遍历"></a>中序遍历</h3><p>中序遍历是一种以上行顺序访问 BST 所有节点的遍历方式，也就是从最小到最大的顺序进行访问所有节点。具体方法，看代码吧，配上图多看两遍代码就能明白了（我是这么认为的）。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BinarySearchTree</span>  </span>&#123;</span><br><span class="line">  <span class="comment">// ...省略前面的</span></span><br><span class="line">  </span><br><span class="line">  inOrderTraverse (callback) &#123;</span><br><span class="line">    <span class="built_in">this</span>.inOrderTraverseNode(<span class="built_in">this</span>.root, callback)</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  inOrderTraverseNode (node, callback) &#123;</span><br><span class="line">    <span class="keyword">if</span> (node !== <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="built_in">this</span>.inOrderTraverseNode(node.left, callback)</span><br><span class="line">      callback(node.key)</span><br><span class="line">      <span class="built_in">this</span>.inOrderTraverseNode(node.right, callback)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>同样，用图展示一下遍历的过程，具体过程看代码多思考一下。</p>
+<img src="https://s2.ax1x.com/2019/01/01/F5K491.png" alt="F5K491.png" border="0">
+
+<h3 id="先序遍历"><a href="#先序遍历" class="headerlink" title="先序遍历"></a>先序遍历</h3><p>先序遍历会先访问节点本身，然后再访问它的左侧子节点，最后再访问右侧的节点。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BinarySearchTree</span>  </span>&#123;</span><br><span class="line">  <span class="comment">// ...省略前面的</span></span><br><span class="line">  </span><br><span class="line">  preOrderTraverse (callback) &#123;</span><br><span class="line">    <span class="built_in">this</span>.preOrderTraverseNode(<span class="built_in">this</span>.root, callback)</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  preOrderTraverseNode (node, callback) &#123;</span><br><span class="line">    <span class="keyword">if</span> (node !== <span class="literal">null</span>) &#123;</span><br><span class="line">      callback(node.key)</span><br><span class="line">      <span class="built_in">this</span>.preOrderTraverseNode(node.left, callback)</span><br><span class="line">      <span class="built_in">this</span>.preOrderTraverseNode(node.right, callback)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>仔细看代码，发现和中序遍历的区别不过是先执行了 <code>callback</code> 然后再遍历左右。</p>
+<img src="https://s2.ax1x.com/2019/01/01/F5KWN9.png" alt="F5KWN9.png" border="0">
+
+<h3 id="后序遍历"><a href="#后序遍历" class="headerlink" title="后序遍历"></a>后序遍历</h3><p>后序遍历则是先访问节点的后代节点，然后再访问节点本身。实现：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BinarySearchTree</span>  </span>&#123;</span><br><span class="line">  <span class="comment">// ...省略前面的</span></span><br><span class="line">  </span><br><span class="line">  postOrderTraverse (callback) &#123;</span><br><span class="line">    <span class="built_in">this</span>.postOrderTraverseNode(<span class="built_in">this</span>.root, callback)</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  postOrderTraverseNode (node, callback) &#123;</span><br><span class="line">    <span class="keyword">if</span> (node !== <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="built_in">this</span>.postOrderTraverseNode(node.left, callback)</span><br><span class="line">      <span class="built_in">this</span>.postOrderTraverseNode(node.right, callback)</span><br><span class="line">      callback(node.key)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>再仔细看代码，发现和中序遍历的区别不过是先执行了遍历了左右，最后执行了 <code>callback</code> 。</p>
+<p>惯例，画张图~</p>
+<img src="https://s2.ax1x.com/2019/01/01/F5Kg74.png" alt="F5Kg74.png" border="0">
+
+<p>三种遍历方式讲完啦，不懂的可以多看几遍代码哦~</p>
+<h2 id="搜索二叉搜索树中的值"><a href="#搜索二叉搜索树中的值" class="headerlink" title="搜索二叉搜索树中的值"></a>搜索二叉搜索树中的值</h2><p>在树中，通常有三种经常使用的搜索类型：</p>
+<ul>
+<li>搜索最大值</li>
+<li>搜索最小值</li>
+<li>搜索特定值</li>
+</ul>
+<p>下面一一列举</p>
+<h3 id="搜索最小和最大值"><a href="#搜索最小和最大值" class="headerlink" title="搜索最小和最大值"></a>搜索最小和最大值</h3><p>首先我们知道二叉搜索树中的最小值在最左边，最大值在最右边。既然知道这个，那么实现搜索最大和最小就十分简单了。所以直接上代码：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BinarySearchTree</span>  </span>&#123;</span><br><span class="line">  <span class="comment">// ...省略前面的</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 搜索最小</span></span><br><span class="line">  min () &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">this</span>.minNode(<span class="built_in">this</span>.root)</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  minNode (node) &#123;</span><br><span class="line">    <span class="keyword">if</span> (node) &#123;</span><br><span class="line">      <span class="comment">// 如果节点存在，而且左边不为 null</span></span><br><span class="line">      <span class="keyword">while</span> (node &amp;&amp; node.left !== <span class="literal">null</span>) &#123;</span><br><span class="line">        node = node.left</span><br><span class="line">      &#125;</span><br><span class="line">      </span><br><span class="line">      <span class="keyword">return</span> node.key</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 如果树为空，则返回 null</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span></span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 搜索最大</span></span><br><span class="line">  max () &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">this</span>.maxNode(<span class="built_in">this</span>.root)</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  maxNode (node) &#123;</span><br><span class="line">    <span class="keyword">if</span> (node) &#123;</span><br><span class="line">      <span class="keyword">while</span> (node &amp;&amp; node.right !== <span class="literal">null</span>) &#123;</span><br><span class="line">        node = node.right</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> node.key</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="搜索特定的值"><a href="#搜索特定的值" class="headerlink" title="搜索特定的值"></a>搜索特定的值</h3><p>基本上的思路和遍历节点差不多，具体看代码。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BinarySearchTree</span>  </span>&#123;</span><br><span class="line">  <span class="comment">// ...省略前面的</span></span><br><span class="line">  </span><br><span class="line">  search (key) &#123;</span><br><span class="line">  	<span class="keyword">return</span> <span class="built_in">this</span>.searchNode(<span class="built_in">this</span>.root, key)</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  searchNode (node, key) &#123;</span><br><span class="line">    <span class="keyword">if</span> (node === <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 如果 key 比节点的值小，那么搜索左边的子节点，下面的相反</span></span><br><span class="line">    <span class="keyword">if</span> (key &lt; node.key) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="built_in">this</span>.searchNode(node.left, key)</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (key &gt; node.key) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="built_in">this</span>.searchNode(node.right, key)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="翻转二叉树"><a href="#翻转二叉树" class="headerlink" title="翻转二叉树"></a>翻转二叉树</h2><p>翻转一个二叉树，直观上看，就是把二叉树的每一层左右顺序倒过来。 </p>
+<p><strong>例如：</strong></p>
+<p>Input:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">     4</span><br><span class="line">   /   \</span><br><span class="line">  2     7</span><br><span class="line"> / \   / \</span><br><span class="line">1   3 6   9</span><br></pre></td></tr></table></figure>
+
+<p>Output:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">     4</span><br><span class="line">   /   \</span><br><span class="line">  7     2</span><br><span class="line"> / \   / \</span><br><span class="line">9   6 3   1</span><br></pre></td></tr></table></figure>
+
+<p>仔细看就是先把最底下的节点反转，然后上一个节点再翻转。例如：1 - 3 反转成 3 - 1，6 - 9 反转成 9 - 6，  然后再让 2 - 7 反转。当然反过来也一样，先反转 2 - 7 也是可以的。</p>
+<p>所以具体的过程是：</p>
+<ol>
+<li>翻转根节点的左子树（递归调用当前函数）</li>
+<li>翻转根节点的右子树（递归调用当前函数）</li>
+<li>交换根节点的左子节点与右子节点</li>
+</ol>
+<p>最后看一下实现的代码：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BinarySearchTree</span>  </span>&#123;</span><br><span class="line">  <span class="comment">// ...省略前面的</span></span><br><span class="line"> </span><br><span class="line">  invertTree (node = <span class="built_in">this</span>.root) &#123;</span><br><span class="line">    <span class="keyword">if</span> (node === <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">this</span>.invertTree(node.left)</span><br><span class="line">    <span class="built_in">this</span>.invertTree(node.right)</span><br><span class="line">    <span class="built_in">this</span>.exchange(node)</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  exchange (node) &#123;</span><br><span class="line">    <span class="keyword">let</span> temp = node.left</span><br><span class="line">    node.left = node.right</span><br><span class="line">    node.right = temp</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样就简单实现啦，舒服舒服~</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><p>全部代码在这里~</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BinarySearchTree</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="title">constructor</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">    <span class="built_in">this</span>.root = <span class="literal">null</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="title">Node</span>(<span class="params">key</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> left = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">let</span> right = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      key,</span><br><span class="line">      left,</span><br><span class="line">      right</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="title">insert</span>(<span class="params">key</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> newNode = <span class="built_in">this</span>.Node(key)</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">this</span>.root === <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="comment">// 如果根节点为空，那么插入的节点就为根节点</span></span><br><span class="line">      <span class="built_in">this</span>.root = newNode</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">this</span>.insertNode(<span class="built_in">this</span>.root, newNode)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="title">insertNode</span>(<span class="params">node, newNode</span>)</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(node)</span><br><span class="line">    <span class="keyword">if</span> (newNode.key &lt; node.key) &#123;</span><br><span class="line">      <span class="keyword">if</span> (node.left === <span class="literal">null</span>) &#123;</span><br><span class="line">        node.left = newNode</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.insertNode(node.left, newNode)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (node.right === <span class="literal">null</span>) &#123;</span><br><span class="line">        node.right = newNode</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.insertNode(node.right, newNode)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="title">inOrderTraverse</span>(<span class="params">callback</span>)</span> &#123;</span><br><span class="line">    <span class="built_in">this</span>.inOrderTraverseNode(<span class="built_in">this</span>.root, callback)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="title">inOrderTraverseNode</span>(<span class="params">node, callback</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (node !== <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="built_in">this</span>.inOrderTraverseNode(node.left, callback)</span><br><span class="line">      callback(node.key)</span><br><span class="line">      <span class="built_in">this</span>.inOrderTraverseNode(node.right, callback)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="title">preOrderTraverse</span>(<span class="params">callback</span>)</span> &#123;</span><br><span class="line">    <span class="built_in">this</span>.preOrderTraverseNode(<span class="built_in">this</span>.root, callback)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="title">preOrderTraverseNode</span>(<span class="params">node, callback</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (node !== <span class="literal">null</span>) &#123;</span><br><span class="line">      callback(node.key)</span><br><span class="line">      <span class="built_in">this</span>.preOrderTraverseNode(node.left, callback)</span><br><span class="line">      <span class="built_in">this</span>.preOrderTraverseNode(node.right, callback)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="title">postOrderTraverse</span>(<span class="params">callback</span>)</span> &#123;</span><br><span class="line">    <span class="built_in">this</span>.postOrderTraverseNode(<span class="built_in">this</span>.root, callback)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="title">postOrderTraverseNode</span>(<span class="params">node, callback</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (node !== <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="built_in">this</span>.postOrderTraverseNode(node.left, callback)</span><br><span class="line">      <span class="built_in">this</span>.postOrderTraverseNode(node.right, callback)</span><br><span class="line">      callback(node.key)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 搜索最小</span></span><br><span class="line">  <span class="function"><span class="title">min</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">this</span>.minNode(<span class="built_in">this</span>.root)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="title">minNode</span>(<span class="params">node</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (node) &#123;</span><br><span class="line">      <span class="comment">// 如果节点存在，而且左边不为 null</span></span><br><span class="line">      <span class="keyword">while</span> (node &amp;&amp; node.left !== <span class="literal">null</span>) &#123;</span><br><span class="line">        node = node.left</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> node.key</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果树为空，则返回 null</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 搜索最大</span></span><br><span class="line">  <span class="function"><span class="title">max</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">this</span>.maxNode(<span class="built_in">this</span>.root)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="title">maxNode</span>(<span class="params">node</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (node) &#123;</span><br><span class="line">      <span class="keyword">while</span> (node &amp;&amp; node.right !== <span class="literal">null</span>) &#123;</span><br><span class="line">        node = node.right</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> node.key</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span></span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="title">search</span>(<span class="params">key</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">this</span>.searchNode(<span class="built_in">this</span>.root, key)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="title">searchNode</span>(<span class="params">node, key</span>)</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&#x27;node-&#x27;</span>, node, <span class="string">&#x27;---&#x27;</span>, node === <span class="literal">null</span>, <span class="string">&#x27;-key-&#x27;</span>, key)</span><br><span class="line">    <span class="keyword">if</span> (node === <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果 key 比节点的值小，那么搜索左边的子节点，下面的相反</span></span><br><span class="line">    <span class="keyword">if</span> (key &lt; node.key) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="built_in">this</span>.searchNode(node.left, key)</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (key &gt; node.key) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="built_in">this</span>.searchNode(node.right, key)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">&#x27;didi&#x27;</span>)</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  invertTree (node = <span class="built_in">this</span>.root) &#123;</span><br><span class="line">    <span class="keyword">if</span> (node === <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">this</span>.invertTree(node.left)</span><br><span class="line">    <span class="built_in">this</span>.invertTree(node.right)</span><br><span class="line">    <span class="built_in">this</span>.exchange(node)</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  exchange (node) &#123;</span><br><span class="line">    <span class="keyword">let</span> temp = node.left</span><br><span class="line">    node.left = node.right</span><br><span class="line">    node.right = temp</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>文章是自己的学习的一个记录，如果能够顺便帮助大家学习一下，那就再好不过了。</p>
+<p>但是因为本人技术技术有限，所以文章难免会有疏漏，欢迎指出。</p>
+<h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><ul>
+<li>书籍：《学习 JavaScript 数据结构与算法》</li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/u014359097/article/details/50225293">[数据结构][Leetcode]翻转二叉树</a></li>
+</ul>
+
+    </article>
+    <div class="pager-post">
+    
+      <a class="prev-link" href="/blog/2018/08/11/2018-08-11-JS%20%E4%B8%AD%E6%95%B0%E7%BB%84%E7%9A%84%E9%81%8D%E5%8E%86/">
+        <span>PREVIOUS</span>
+        <p>JS 中数组的遍历</p>
+      </a>
+    
+    
+    
+      <a class="next-link" href="/blog/2018/05/25/2018-5-25-event-bind/">
+        <span>NEXT</span>
+        <p>JS 事件委托</p>
+      </a>
+    
+  </div>
+    
+  <div class="post-comment-wrapper">
+      <div id="disqus_thread"></div>
+  </div>
+
+    <div class="post-all-tags">
+      <h1 class="title">ALL TAGS</h1>
+      <ul class="all-tag-list">
+    
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E6%B8%B8%E6%88%8F/">
+          游戏
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/CSS/">
+          CSS
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/JavaScript/">
+          JavaScript
+          <span class="count">
+            8
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+          数据结构
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E7%94%9F%E6%B4%BB/">
+          生活
+          <span class="count">
+            4
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/Git/">
+          Git
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E5%90%8E%E7%AB%AF/">
+          后端
+          <span class="count">
+            2
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/Vue/">
+          Vue
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E7%A7%BB%E5%8A%A8%E7%AB%AF/">
+          移动端
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+    
+  </ul>
+    </div>
+  </main>
+  <footer>
+  <div class="connect-inner">
+      
+        <a href="https://github.com/caijinyc" target="_blank" class="github">
+          <i class="iconfont icon-github"></i>
+        </a>
+      
+        <a href="https://juejin.im/user/5acc88a8f265da23a2297002" target="_blank" class="juejin">
+          <i class="iconfont icon-juejin"></i>
+        </a>
+      
+        <a href="https://www.zhihu.com/people/adherds/activities" target="_blank" class="zhihu">
+          <i class="iconfont icon-zhihu"></i>
+        </a>
+      
+  </div>
+  <div class="bottom-inner">
+    <p class="theme">Theme <a target="_blank" rel="noopener" href="https://github.com/orbem/hexo-theme-osimple">OSimple</a> by Caijinyc</p>
+    <p class="copyright">Copyright © 2019 Cai Jin & Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a></p> 
+  </div>
+</footer>
+  
+  <script>
+      var disqus_shortname = 'orbem';
+      var disqus_config = function () {
+          this.page.url = 'https://caijin.tech/blog2018/06/06/2018-06-08-JS二搜索叉树/';
+          this.page.identifier = '2018/06/06/2018-06-08-JS二搜索叉树/';
+      };
+      (function () {
+          var d = document, s = d.createElement('script');
+          s.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.body || d.head).appendChild(s);
+      })();
+  </script>
+
+  
+<script src="/blog/js/highlight.js"></script>
+
+</body>
+</html>
+
+

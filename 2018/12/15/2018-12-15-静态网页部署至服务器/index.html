@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>如何将打包好的静态网页部署至服务器 - 蔡锦的博客 | CAIJIN BLOG</title>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-131749872-3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-131749872-3');
+</script>
+
+<link rel="stylesheet" href="/blog/css/osimple.css">
+
+
+<link rel="stylesheet" href="/blog/css/theme/theme0.css">
+
+<link rel="shortcut icon" href="/blog/favicon.ico"> 
+  
+<link rel="stylesheet" href="/blog/css/arduino-light.css">
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+  <div class="header-menu post-header-menu">
+    <a class="left" href="/blog/">CAIJIN BLOG</a>
+    <div class="right">
+      
+        <a href="/blog/">HOME</a>
+      
+        <a href="/blog/archives/">ARCHIVE</a>
+      
+        <a href="/blog/about/">ABOUT</a>
+      
+    </div>
+  </div>
+  <main class="page-container">
+    <div class="top-inner">
+      <h1 class="page-title">
+        如何将打包好的静态网页部署至服务器
+      </h1>
+      
+        <time datetime="2018-12-15T00:00:00.000Z">
+            Posted by Orbem on December 15th 2018
+        </time>
+      
+      
+        <ul class="tag-list">
+          
+            <li class="tag-list-item">
+              <a href="/blog/tags/后端/">后端</a>
+            </li>
+          
+        </ul>
+      
+    </div>
+    <article class="post">
+        <p>在完成书查查应用之后，需要将应用部署至服务器，记录一下部署的过。<span id="more"></span></p>
+<h2 id="本地成功运行"><a href="#本地成功运行" class="headerlink" title="本地成功运行"></a>本地成功运行</h2><p>首先是运行 <code>npm run build</code> 打包应用，打包好的页面是无法直接访问的，具体原因在这里：<a target="_blank" rel="noopener" href="https://cli.vuejs.org/zh/guide/deployment.html#%E9%80%9A%E7%94%A8%E6%8C%87%E5%8D%97">Vue-cli 部署</a>。</p>
+<p>大概内容是：</p>
+<blockquote>
+<p><code>dist</code> 目录需要启动一个 HTTP 服务器来访问 (除非你已经将 <code>baseUrl</code> 配置为了一个相对的值)，所以以 <code>file://</code> 协议直接打开 <code>dist/index.html</code> 是不会工作的。在本地预览生产环境构建最简单的方式就是使用一个 Node.js 静态文件服务器。</p>
+</blockquote>
+<p>所以我需要使用 Node.js 起一个静态服务器，我这里用的是 Express，方法： <a target="_blank" rel="noopener" href="http://www.expressjs.com.cn/starter/static-files.html">利用 Express 托管静态文件</a>。</p>
+<p>只需要很简单的几行代码：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> app = express();</span><br><span class="line">app.use(express.static(<span class="string">&#x27;./dist&#x27;</span>));</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> port = <span class="number">3003</span>;</span><br><span class="line"></span><br><span class="line">app.listen(port, <span class="function"><span class="keyword">function</span> (<span class="params">err</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (err) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(err);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&#x27;Listening at http://localhost:&#x27;</span> + port + <span class="string">&#x27;\n&#x27;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>然后运行 <code>node filename.js</code> 服务就成功起来啦。这时候访问 <code>localhost:3003</code> 就可以访问部署好的静态页面。</p>
+<p>下一步是上传代码到服务器。</p>
+<h2 id="上传文件到服务器"><a href="#上传文件到服务器" class="headerlink" title="上传文件到服务器"></a>上传文件到服务器</h2><p>我使用的是 scp 命令上传文件到服务器上的，具体代码是：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">scp -r ./dist root@120.79.162.***:/home/library-book-search/web/</span><br><span class="line"></span><br><span class="line">// 将 dist 文件夹 上传至 120.79... 的 /home/library-book/search/web/ 中</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>scp：上传命令</li>
+<li>-r：上传文件是文件夹</li>
+<li>./dist：本地需要上传文件的位置</li>
+<li>root@120…：使用 root 用户名登录远程服务器 120….</li>
+<li>:/home/library-book-search/web/：表示保存在远程服务器上的地址</li>
+</ul>
+<p>回车之后输入服务器密码，就可以等待文件上传成功了。</p>
+<h2 id="在服务器上起服务"><a href="#在服务器上起服务" class="headerlink" title="在服务器上起服务"></a>在服务器上起服务</h2><p>首先进入到项目所在的文件夹，然后和在本地一样，运行 <code>node filename.js</code> 这样服务就成功跑起来了，然后访问发现并不 ok，捣鼓半天之后阿里云这个端口并不是默认开放的，所以需要在阿里云的控制台把这台服务器需要使用的端口打开。</p>
+<p>成功开启端口之后终于访问成功了，于是美滋滋的关掉命令行，准备和朋友炫耀一番，结果打脸了，又访问失败了。再一顿思考之后发现，当关闭命令行界面之后，node 服务会自动关闭。所以我们的服务就扑街了。</p>
+<p>这个时候就需要使用 <a target="_blank" rel="noopener" href="http://pm2.keymetrics.io/">PM2</a> 来维护我的服务啦，在服务起上全局安装 PM2 之后，<code>pm2 start filename.js</code> ，项目就真正的完美啦。这下关掉命令行界面也不用担心任务爆炸了。</p>
+
+    </article>
+    <div class="pager-post">
+    
+      <a class="prev-link" href="/blog/2019/01/01/2019-01-01-%E6%88%91%E7%9A%842018/">
+        <span>PREVIOUS</span>
+        <p>关于我的 2018</p>
+      </a>
+    
+    
+    
+      <a class="next-link" href="/blog/2018/11/24/2018-11-24-%E4%B8%80%E4%B8%AA%E5%9B%A0%E6%96%87%E4%BB%B6%E5%90%8D%E7%A7%B0%E5%A4%A7%E5%B0%8F%E5%86%99%E4%BA%A7%E7%94%9F%E7%9A%84%E9%94%99%E8%AF%AF/">
+        <span>NEXT</span>
+        <p>一个因文件名称大小写产生的错误</p>
+      </a>
+    
+  </div>
+    
+  <div class="post-comment-wrapper">
+      <div id="disqus_thread"></div>
+  </div>
+
+    <div class="post-all-tags">
+      <h1 class="title">ALL TAGS</h1>
+      <ul class="all-tag-list">
+    
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E6%B8%B8%E6%88%8F/">
+          游戏
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/CSS/">
+          CSS
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/JavaScript/">
+          JavaScript
+          <span class="count">
+            8
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+          数据结构
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E7%94%9F%E6%B4%BB/">
+          生活
+          <span class="count">
+            4
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/Git/">
+          Git
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E5%90%8E%E7%AB%AF/">
+          后端
+          <span class="count">
+            2
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/Vue/">
+          Vue
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E7%A7%BB%E5%8A%A8%E7%AB%AF/">
+          移动端
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+    
+  </ul>
+    </div>
+  </main>
+  <footer>
+  <div class="connect-inner">
+      
+        <a href="https://github.com/caijinyc" target="_blank" class="github">
+          <i class="iconfont icon-github"></i>
+        </a>
+      
+        <a href="https://juejin.im/user/5acc88a8f265da23a2297002" target="_blank" class="juejin">
+          <i class="iconfont icon-juejin"></i>
+        </a>
+      
+        <a href="https://www.zhihu.com/people/adherds/activities" target="_blank" class="zhihu">
+          <i class="iconfont icon-zhihu"></i>
+        </a>
+      
+  </div>
+  <div class="bottom-inner">
+    <p class="theme">Theme <a target="_blank" rel="noopener" href="https://github.com/orbem/hexo-theme-osimple">OSimple</a> by Caijinyc</p>
+    <p class="copyright">Copyright © 2019 Cai Jin & Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a></p> 
+  </div>
+</footer>
+  
+  <script>
+      var disqus_shortname = 'orbem';
+      var disqus_config = function () {
+          this.page.url = 'https://caijin.tech/blog2018/12/15/2018-12-15-静态网页部署至服务器/';
+          this.page.identifier = '2018/12/15/2018-12-15-静态网页部署至服务器/';
+      };
+      (function () {
+          var d = document, s = d.createElement('script');
+          s.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.body || d.head).appendChild(s);
+      })();
+  </script>
+
+  
+<script src="/blog/js/highlight.js"></script>
+
+</body>
+</html>
+
+

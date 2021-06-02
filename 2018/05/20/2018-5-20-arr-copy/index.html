@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>JS 的深拷贝和浅拷贝总结 - 蔡锦的博客 | CAIJIN BLOG</title>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-131749872-3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-131749872-3');
+</script>
+
+<link rel="stylesheet" href="/blog/css/osimple.css">
+
+
+<link rel="stylesheet" href="/blog/css/theme/theme0.css">
+
+<link rel="shortcut icon" href="/blog/favicon.ico"> 
+  
+<link rel="stylesheet" href="/blog/css/arduino-light.css">
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+  <div class="header-menu post-header-menu">
+    <a class="left" href="/blog/">CAIJIN BLOG</a>
+    <div class="right">
+      
+        <a href="/blog/">HOME</a>
+      
+        <a href="/blog/archives/">ARCHIVE</a>
+      
+        <a href="/blog/about/">ABOUT</a>
+      
+    </div>
+  </div>
+  <main class="page-container">
+    <div class="top-inner">
+      <h1 class="page-title">
+        JS 的深拷贝和浅拷贝总结
+      </h1>
+      
+        <time datetime="2018-05-20T00:00:00.000Z">
+            Posted by Orbem on May 20th 2018
+        </time>
+      
+      
+        <ul class="tag-list">
+          
+            <li class="tag-list-item">
+              <a href="/blog/tags/JavaScript/">JavaScript</a>
+            </li>
+          
+        </ul>
+      
+    </div>
+    <article class="post">
+        <p>总结一下深复制和浅复制的区别，以及实现他们的方法。</p>
+<span id="more"></span>
+
+<h2 id="浅复制和深复制的区别"><a href="#浅复制和深复制的区别" class="headerlink" title="浅复制和深复制的区别"></a>浅复制和深复制的区别</h2><p>对于<strong>基本类型</strong>（Undefined、Null、Boolean、Number 和 String），浅复制是对值的复制，对于<strong>引用类型</strong>来说，浅复制是对地址的复制，那么对于地址的复制又是什么意思呢？一段代码解释一下：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> arr1 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</span><br><span class="line"><span class="keyword">let</span> arr2 = arr1</span><br><span class="line">arr1.push(<span class="number">4</span>)</span><br><span class="line"><span class="built_in">console</span>.log(arr1) <span class="comment">//  [1, 2, 3, 4]</span></span><br><span class="line"><span class="built_in">console</span>.log(arr2) <span class="comment">//  [1, 2, 3, 4]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 只改变了 arr1，但是 arr2 也同时改变了。为什么呢？</span></span><br><span class="line"><span class="comment">// 因为 arr2 复制的仅仅是 arr1 的地址（指向数据的位置），所以 arr1 和 arr2 引用的是相同的数据</span></span><br><span class="line"><span class="comment">// 所以改变 arr1 的值时，arr2 也会发生改变</span></span><br></pre></td></tr></table></figure>
+
+
+<p>而深复制则是开辟新的栈，两个属性对应两个不同的地址，修改一个属性的数据，不会改变另一个属性数据。</p>
+<h2 id="浅复制"><a href="#浅复制" class="headerlink" title="浅复制"></a>浅复制</h2><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> obj = &#123; <span class="attr">a</span>:<span class="number">1</span>, <span class="attr">arr</span>: [<span class="number">2</span>,<span class="number">3</span>] &#125;;</span><br><span class="line"><span class="keyword">let</span> shallowObj = shallowCopy(obj);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">shallowCopy</span>(<span class="params">src</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> dst = &#123;&#125;;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> prop <span class="keyword">in</span> src) &#123;</span><br><span class="line">    <span class="keyword">if</span> (src.hasOwnProperty(prop)) &#123;</span><br><span class="line">      dst[prop] = src[prop];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> dst;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">obj.arr.push(<span class="string">&#x27;4&#x27;</span>);</span><br><span class="line"><span class="built_in">console</span>.log(obj.arr) <span class="comment">// [2, 3, &quot;4&quot;]</span></span><br><span class="line"><span class="built_in">console</span>.log(shallowObj.arr) <span class="comment">// [2, 3, &quot;4&quot;]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 明明只是修改了 obj 的 arr，但是 shallowObj 中的也被修改了。</span></span><br></pre></td></tr></table></figure>
+
+<p>原因：因为浅复制只会将对象的各个属性进行依次复制，并不会进行递归复制，而 JavaScript 存储对象都是存地址的，所以浅复制会导致 obj.arr 和 shallowObj.arr 指向同一块内存地址。</p>
+<h2 id="深复制"><a href="#深复制" class="headerlink" title="深复制"></a>深复制</h2><h3 id="1-JSON实现"><a href="#1-JSON实现" class="headerlink" title="1. JSON实现"></a>1. JSON实现</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line">b = <span class="built_in">JSON</span>.parse(<span class="built_in">JSON</span>.stringify(a))</span><br></pre></td></tr></table></figure>
+
+<p>这个方法最方便，但是有它的局限性。</p>
+<ul>
+<li>无法复制函数</li>
+<li>原型链没了，对象就是 object，所属的类没了。</li>
+</ul>
+<p>那么为什么不能复制函数呢？<em>因为：JSON.stringify 函数将一个 JavaScript 对象转换成文本化的 JSON。不能被文本化的属性会被忽略。所以函数就被忽略调了。</em></p>
+<h3 id="2-递归实现"><a href="#2-递归实现" class="headerlink" title="2. 递归实现"></a>2. 递归实现</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 递归深拷贝！</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">clone</span>(<span class="params">val</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> newVal;</span><br><span class="line">  <span class="keyword">if</span> (val <span class="keyword">instanceof</span> <span class="built_in">Array</span>) &#123;</span><br><span class="line">    <span class="comment">// 创建一个空的数组</span></span><br><span class="line">    newVal = [];</span><br><span class="line">    <span class="keyword">let</span> i = val.length;</span><br><span class="line">    <span class="keyword">while</span> (i--) &#123;</span><br><span class="line">      newVal[i] = clone(val[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> newVal;</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span> val === <span class="string">&#x27;object&#x27;</span>) &#123;</span><br><span class="line">    <span class="comment">// 创建一个空对象</span></span><br><span class="line">    newVal = &#123;&#125;;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> k <span class="keyword">in</span> val) &#123;</span><br><span class="line">      <span class="comment">// 为这个对象添加新的属性</span></span><br><span class="line">      newVal[k] = clone(val[k]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> newVal;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> val;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>实现的原理</strong></p>
+<p>实现原理，先新建一个空对象，内存中新开辟一块地址，把被复制对象的所有可枚举的（注意可枚举的对象） 属性方法一一复制过来，注意要用递归（如果传入的变量是一个数组或者对象，那么就进行递归）来复制子对象里面的所有属性和方法，直到子子…..属性为基本数据类型。</p>
+<p>总结，深拷贝需要理解两点：</p>
+<ol>
+<li>新开辟内存地址</li>
+<li>递归来刨根复制</li>
+</ol>
+
+    </article>
+    <div class="pager-post">
+    
+      <a class="prev-link" href="/blog/2018/05/25/2018-5-25-event-bind/">
+        <span>PREVIOUS</span>
+        <p>JS 事件委托</p>
+      </a>
+    
+    
+    
+      <a class="next-link" href="/blog/2018/05/15/2018-5-15-vue-music/">
+        <span>NEXT</span>
+        <p>Vue 实现网易云音乐 WebApp</p>
+      </a>
+    
+  </div>
+    
+  <div class="post-comment-wrapper">
+      <div id="disqus_thread"></div>
+  </div>
+
+    <div class="post-all-tags">
+      <h1 class="title">ALL TAGS</h1>
+      <ul class="all-tag-list">
+    
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E6%B8%B8%E6%88%8F/">
+          游戏
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/CSS/">
+          CSS
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/JavaScript/">
+          JavaScript
+          <span class="count">
+            8
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+          数据结构
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E7%94%9F%E6%B4%BB/">
+          生活
+          <span class="count">
+            4
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/Git/">
+          Git
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E5%90%8E%E7%AB%AF/">
+          后端
+          <span class="count">
+            2
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/Vue/">
+          Vue
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E7%A7%BB%E5%8A%A8%E7%AB%AF/">
+          移动端
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+    
+  </ul>
+    </div>
+  </main>
+  <footer>
+  <div class="connect-inner">
+      
+        <a href="https://github.com/caijinyc" target="_blank" class="github">
+          <i class="iconfont icon-github"></i>
+        </a>
+      
+        <a href="https://juejin.im/user/5acc88a8f265da23a2297002" target="_blank" class="juejin">
+          <i class="iconfont icon-juejin"></i>
+        </a>
+      
+        <a href="https://www.zhihu.com/people/adherds/activities" target="_blank" class="zhihu">
+          <i class="iconfont icon-zhihu"></i>
+        </a>
+      
+  </div>
+  <div class="bottom-inner">
+    <p class="theme">Theme <a target="_blank" rel="noopener" href="https://github.com/orbem/hexo-theme-osimple">OSimple</a> by Caijinyc</p>
+    <p class="copyright">Copyright © 2019 Cai Jin & Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a></p> 
+  </div>
+</footer>
+  
+  <script>
+      var disqus_shortname = 'orbem';
+      var disqus_config = function () {
+          this.page.url = 'https://caijin.tech/blog2018/05/20/2018-5-20-arr-copy/';
+          this.page.identifier = '2018/05/20/2018-5-20-arr-copy/';
+      };
+      (function () {
+          var d = document, s = d.createElement('script');
+          s.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.body || d.head).appendChild(s);
+      })();
+  </script>
+
+  
+<script src="/blog/js/highlight.js"></script>
+
+</body>
+</html>
+
+

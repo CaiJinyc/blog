@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>使用 Nginx 进行端口转发 - 蔡锦的博客 | CAIJIN BLOG</title>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-131749872-3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-131749872-3');
+</script>
+
+<link rel="stylesheet" href="/blog/css/osimple.css">
+
+
+<link rel="stylesheet" href="/blog/css/theme/theme0.css">
+
+<link rel="shortcut icon" href="/blog/favicon.ico"> 
+  
+<link rel="stylesheet" href="/blog/css/arduino-light.css">
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+  <div class="header-menu post-header-menu">
+    <a class="left" href="/blog/">CAIJIN BLOG</a>
+    <div class="right">
+      
+        <a href="/blog/">HOME</a>
+      
+        <a href="/blog/archives/">ARCHIVE</a>
+      
+        <a href="/blog/about/">ABOUT</a>
+      
+    </div>
+  </div>
+  <main class="page-container">
+    <div class="top-inner">
+      <h1 class="page-title">
+        使用 Nginx 进行端口转发
+      </h1>
+      
+        <time datetime="2019-03-05T00:00:00.000Z">
+            Posted by Orbem on March 5th 2019
+        </time>
+      
+      
+        <ul class="tag-list">
+          
+            <li class="tag-list-item">
+              <a href="/blog/tags/后端/">后端</a>
+            </li>
+          
+        </ul>
+      
+    </div>
+    <article class="post">
+        <p>当我们让域名解析指向服务器的 IP 地址时，如果想访问非 80 端口上的服务时，就需要加上 <code>:port</code>，很显然这样很丑，所以我们就可以通过使用 Nginx 来监听 80 端口，判断发起请求的 URL，然后转发到不同的端口上。<span id="more"></span></p>
+<h2 id="安装-Nginx"><a href="#安装-Nginx" class="headerlink" title="安装 Nginx"></a>安装 Nginx</h2><p>首先我们需要给服务器安装 Nginx。</p>
+<p>在 CentOS 7 中，直接使用 yum 安装 Nginx 会提示无下载源。因此，需要添加 Nginx 的下载源到 yum：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm</span><br></pre></td></tr></table></figure>
+
+<p>指定了下载源后，就可以使用 yum 命令来安装 Nginx 了：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo yum install -y nginx</span><br></pre></td></tr></table></figure>
+
+<p>安装完成的 Nginx 并不会立刻启动，需要我们手动执行命令来开启它:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo systemctl start nginx.service</span><br></pre></td></tr></table></figure>
+
+<p>还可以输入以下命令，让 Nginx 可以随系统自动启动：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo systemctl <span class="built_in">enable</span> nginx</span><br></pre></td></tr></table></figure>
+
+<p>相关命令补充：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 开启 Nginx</span></span><br><span class="line">service nginx start</span><br><span class="line"><span class="comment"># 停止 Nginx</span></span><br><span class="line">service nginx stop</span><br><span class="line"><span class="comment"># 重启 Nginx</span></span><br><span class="line">service nginx restart</span><br><span class="line"><span class="comment"># 查看 Nginx 状态</span></span><br><span class="line">service nginx status</span><br></pre></td></tr></table></figure>
+
+<p>Nginx 的默认站点根目录为：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/usr/share/nginx/html/</span><br></pre></td></tr></table></figure>
+
+<p>默认站点配置在：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/etc/nginx/conf.d/default.conf</span><br></pre></td></tr></table></figure>
+
+<p>Nginx 主配置如下（当修改配置文件后需要运行 <code>service nginx restart</code> 重新启动使配置剩下，在修改前<strong>注意备份</strong>！）</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/etc/nginx/nginx.conf</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>接着我们就需要来修改配置文件：</p>
+<ol>
+<li>首先使用 vim 打开配置文件</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">vim /etc/nginx/nginx.conf</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>修改配置文件</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># ... 省略</span></span><br><span class="line">http &#123;</span><br><span class="line">    // 当通过 your-url-namem:80 端口访问这个服务器时</span><br><span class="line">    // 该请求会被转发到 127.0.0.1:9992</span><br><span class="line">    server &#123;</span><br><span class="line">        listen 80; </span><br><span class="line">        server_name your-url-name.com; </span><br><span class="line">        // 通过访问的路径来处理转发 ...</span><br><span class="line">        location / &#123; </span><br><span class="line">            // 也不一定是内网 127.0.0.1 ，也可以是另外一个服务器的某个端口等 ...</span><br><span class="line">            proxy_pass http://127.0.0.1:9992;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment"># ... 省略</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment"># ... 省略</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>保存配置文件之后</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 重启 Nginx 使得配置生效</span></span><br><span class="line">service nginx restart</span><br></pre></td></tr></table></figure>
+
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>成功之后我还没高兴 1 分钟就发现了一个让人蛋疼的事情</p>
+<img src="https://i.loli.net/2019/03/05/5c7d657b8a66d.png">
+
+<p>真的是！！！好气啊！算了算了备案去了。</p>
+<p>参考资料：</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="http://www.nljb.net/default/Nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E4%B9%8B%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/">Nginx 反向代理之端口转发</a></li>
+<li><a target="_blank" rel="noopener" href="https://chaishiwei.com/blog/1281.html">CentOS 7 用 yum 安装 Nginx</a></li>
+</ol>
+
+    </article>
+    <div class="pager-post">
+    
+      <a class="prev-link" href="/blog/2021/04/13/2021-04-13-%E9%87%8D%E6%96%B0%E5%BC%80%E5%A7%8B%E5%86%99%E5%8D%9A%E5%AE%A2/">
+        <span>PREVIOUS</span>
+        <p>重新开始写博客</p>
+      </a>
+    
+    
+    
+      <a class="next-link" href="/blog/2019/03/03/2019-03-03-%E6%98%A5%E6%8B%9B%E7%BB%93%E6%9D%9F/">
+        <span>NEXT</span>
+        <p>春招结束</p>
+      </a>
+    
+  </div>
+    
+  <div class="post-comment-wrapper">
+      <div id="disqus_thread"></div>
+  </div>
+
+    <div class="post-all-tags">
+      <h1 class="title">ALL TAGS</h1>
+      <ul class="all-tag-list">
+    
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E6%B8%B8%E6%88%8F/">
+          游戏
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/CSS/">
+          CSS
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/JavaScript/">
+          JavaScript
+          <span class="count">
+            8
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+          数据结构
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E7%94%9F%E6%B4%BB/">
+          生活
+          <span class="count">
+            4
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/Git/">
+          Git
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E5%90%8E%E7%AB%AF/">
+          后端
+          <span class="count">
+            2
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/Vue/">
+          Vue
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+      <li class="tag-list-item">
+        <a href="/blog/tags/%E7%A7%BB%E5%8A%A8%E7%AB%AF/">
+          移动端
+          <span class="count">
+            1
+          </span>
+        </a>
+      </li>
+      
+    
+  </ul>
+    </div>
+  </main>
+  <footer>
+  <div class="connect-inner">
+      
+        <a href="https://github.com/caijinyc" target="_blank" class="github">
+          <i class="iconfont icon-github"></i>
+        </a>
+      
+        <a href="https://juejin.im/user/5acc88a8f265da23a2297002" target="_blank" class="juejin">
+          <i class="iconfont icon-juejin"></i>
+        </a>
+      
+        <a href="https://www.zhihu.com/people/adherds/activities" target="_blank" class="zhihu">
+          <i class="iconfont icon-zhihu"></i>
+        </a>
+      
+  </div>
+  <div class="bottom-inner">
+    <p class="theme">Theme <a target="_blank" rel="noopener" href="https://github.com/orbem/hexo-theme-osimple">OSimple</a> by Caijinyc</p>
+    <p class="copyright">Copyright © 2019 Cai Jin & Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a></p> 
+  </div>
+</footer>
+  
+  <script>
+      var disqus_shortname = 'orbem';
+      var disqus_config = function () {
+          this.page.url = 'https://caijin.tech/blog2019/03/05/2019-03-05-使用Nginx进行端口转发/';
+          this.page.identifier = '2019/03/05/2019-03-05-使用Nginx进行端口转发/';
+      };
+      (function () {
+          var d = document, s = d.createElement('script');
+          s.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.body || d.head).appendChild(s);
+      })();
+  </script>
+
+  
+<script src="/blog/js/highlight.js"></script>
+
+</body>
+</html>
+
+
